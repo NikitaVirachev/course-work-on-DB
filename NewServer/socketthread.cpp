@@ -414,9 +414,7 @@ void socketThread::mySocketReady()
                 if (queryNewMovieID->exec("SELECT MAX(MovieID) FROM Movie"))
                 {
                     queryNewMovieID->first();
-                    qDebug() << "Номер " << queryNewMovieID->value(0).toString();
                     newMovieID = QString::number(queryNewMovieID->value(0).toInt() + 1);
-                    //qDebug() << "Номер " << newMovieID;
                 }
 
                 QSqlQuery* query = new QSqlQuery(db);

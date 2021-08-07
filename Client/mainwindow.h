@@ -66,6 +66,8 @@ private slots:
 
     void on_action_2_triggered();
 
+    void on_action_3_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
 

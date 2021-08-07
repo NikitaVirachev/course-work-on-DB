@@ -489,3 +489,12 @@ void MainWindow::on_action_2_triggered()
     socket->write("{\"type\":\"selectAllID\"}");
     socket->waitForBytesWritten(500);
 }
+
+void MainWindow::on_action_3_triggered()
+{
+    ui->progressBar->show();
+    ui->menubar->setEnabled(false);
+    socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+    socket->waitForBytesWritten(500);
+}
+
