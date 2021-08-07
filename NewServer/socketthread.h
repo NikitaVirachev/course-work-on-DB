@@ -31,9 +31,25 @@ public:
     QByteArray baScenario;
     QString movieID;
 
+    int requireSize;
+    bool complexData = false;
+    bool posterArrives = false;
+    bool actorPortraitArrives = false;
+    bool scenarioArrives = false;
+
+    QString newTitle;
+    QString newReleaseDate;
+    QString newBoxOffice;
+    QString newBudget;
+    QString newProtagonistID;
+    QString newDirectorID;
+    QString newStudioName;
+    QByteArray newPoster;
+
 public slots:
     void mySocketReady();
     void socketDisc();
+    void downloadInformationAboutFilms();
 
 private:
     int socketDescriptor;

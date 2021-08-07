@@ -53,6 +53,79 @@ void MainWindow::conToDB(QString adressDB, QString nameDB, QString login, QStrin
     }
 }
 
+void MainWindow::preparingAddMovie(QString title, QString releaseDate, QString boxOffice, QString budget, QString protagonistID, QString directorID, QString studioName, QPixmap poster, QString scenario)
+{
+    newScenario = scenario.toUtf8();
+
+    QBuffer buffer(&newPoster);
+    buffer.open(QIODevice::WriteOnly);
+    poster.save(&buffer, "PNG");
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"addNewMovie\",\"params\":\"basicInformation\""
+                      ",\"title\":\"" + title.toUtf8() +
+                      "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
+                      "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
+                      "\",\"budget\":\"" + budget.toUtf8() +
+                      "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
+                      "\",\"directorID\":\"" + directorID.toUtf8() +
+                      "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+
+    //addMovieWin->hide();
+}
+
+void MainWindow::outputData()
+{
+    movies->clear();
+    director->clear();
+    studio->clear();
+    protagonist->clear();
+    actor->clear();
+    ui->label->clear();
+    ui->label_2->clear();
+    ui->textEdit->clear();
+    QStringList listHeaderMovies;
+    listHeaderMovies.append("Номер фильма");
+    listHeaderMovies.append("Название фильма");
+    listHeaderMovies.append("Дата выхода");
+    listHeaderMovies.append("Сборы");
+    listHeaderMovies.append("Бюджет");
+    movies->setHorizontalHeaderLabels(listHeaderMovies);
+
+    QList<QStandardItem*> listMovie;
+
+    QJsonArray docArr = doc.object().value("result").toArray();
+
+    for (int i = 0; i < docArr.count(); ++i)
+    {
+        QStandardItem* movieID = new QStandardItem(docArr.at(i).toObject().value("movieID").toString());
+        //listMovieID.append(docArr.at(i).toObject().value("movieID").toString());
+        QStandardItem* title = new QStandardItem(docArr.at(i).toObject().value("title").toString());
+        QStandardItem* releaseDate = new QStandardItem(docArr.at(i).toObject().value("releaseDate").toString());
+        QStandardItem* boxOffice = new QStandardItem(docArr.at(i).toObject().value("boxOffice").toString());
+        QStandardItem* budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
+        listMovie.append(movieID);
+        listMovie.append(title);
+        listMovie.append(releaseDate);
+        listMovie.append(boxOffice);
+        listMovie.append(budget);
+
+        movies->appendRow(listMovie);
+        listMovie.clear();
+    }
+
+
+    ui->tableView->setModel(movies);
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -80,39 +153,7 @@ void MainWindow::socketReady()
         {
             if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "itog"))
             {
-                QStandardItemModel* movies = new QStandardItemModel(nullptr);
-                QStringList listHeaderMovies;
-                listHeaderMovies.append("Номер фильма");
-                listHeaderMovies.append("Название фильма");
-                listHeaderMovies.append("Дата выхода");
-                listHeaderMovies.append("Сборы");
-                listHeaderMovies.append("Бюджет");
-                movies->setHorizontalHeaderLabels(listHeaderMovies);
-
-                QList<QStandardItem*> listMovie;
-
-                QJsonArray docArr = doc.object().value("result").toArray();
-
-                for (int i = 0; i < docArr.count(); ++i)
-                {
-                    QStandardItem* movieID = new QStandardItem(docArr.at(i).toObject().value("movieID").toString());
-                    //listMovieID.append(docArr.at(i).toObject().value("movieID").toString());
-                    QStandardItem* title = new QStandardItem(docArr.at(i).toObject().value("title").toString());
-                    QStandardItem* releaseDate = new QStandardItem(docArr.at(i).toObject().value("releaseDate").toString());
-                    QStandardItem* boxOffice = new QStandardItem(docArr.at(i).toObject().value("boxOffice").toString());
-                    QStandardItem* budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
-                    listMovie.append(movieID);
-                    listMovie.append(title);
-                    listMovie.append(releaseDate);
-                    listMovie.append(boxOffice);
-                    listMovie.append(budget);
-
-                    movies->appendRow(listMovie);
-                    listMovie.clear();
-                }
-
-
-                ui->tableView->setModel(movies);
+                outputData();
                 logwin->hide();
                 QMessageBox::information(this, "Информация", "Соединение установлено");
             }
@@ -132,7 +173,7 @@ void MainWindow::socketReady()
             else if ((doc.object().value("type").toString() == "resultSelectInformationOnFilm") && (doc.object().value("status").toString() == "yes"))
             {
 
-                QStandardItemModel* director = new QStandardItemModel(nullptr);
+                director->clear();
                 QStringList listHeaderDirector;
                 listHeaderDirector.append("Номер режисёра");
                 listHeaderDirector.append("Имя");
@@ -159,7 +200,7 @@ void MainWindow::socketReady()
                     listDirector.clear();
                 }
 
-                QStandardItemModel* studio = new QStandardItemModel(nullptr);
+                studio->clear();
                 QStringList listHeaderStudio;
                 listHeaderStudio.append("Название студии");
                 studio->setHorizontalHeaderLabels(listHeaderStudio);
@@ -171,7 +212,7 @@ void MainWindow::socketReady()
                 studio->appendRow(listStudioName);
                 listStudioName.clear();
 
-                QStandardItemModel* protagonist = new QStandardItemModel(nullptr);
+                protagonist->clear();
                 QStringList listHeaderProtagonist;
                 listHeaderProtagonist.append("Номер главного героя");
                 listHeaderProtagonist.append("Главный герой");
@@ -192,7 +233,7 @@ void MainWindow::socketReady()
                     listProtagonist.clear();
                 }
 
-                QStandardItemModel* actor = new QStandardItemModel(nullptr);
+                actor->clear();
                 QStringList listHeaderActor;
                 listHeaderActor.append("Номер актёра");
                 listHeaderActor.append("Имя");
@@ -283,6 +324,47 @@ void MainWindow::socketReady()
 
                 addMovieWin->setWindowTitle("Добавить фильм");
                 addMovieWin->show();
+
+                connect(addMovieWin,SIGNAL(sendMovieSignal(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)), this, SLOT(preparingAddMovie(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "findSizePoster"))
+            {
+                socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizePoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "requestNewPoster"))
+            {
+                socket->write(newPoster);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "findSizeScenario"))
+            {
+                socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizeScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "requestNewScenario"))
+            {
+                socket->write(newScenario);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "movieAddedSuccessfully"))
+            {
+                addMovieWin->hide();
+                QMessageBox::information(this, "Информация", "Фильм успешно добавлен");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateData") && (doc.object().value("params").toString() == "size"))
+            {
+                //qDebug() << "Поступило: " << doc.object().value("length").toInt();
+                requireSize = doc.object().value("length").toInt();
+                socket->write("{\"type\":\"updateData\",\"params\":\"requestItog\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateData") && (doc.object().value("params").toString() == "itog"))
+            {
+                outputData();
+                QMessageBox::information(this, "Информация", "Данные обновлены");
             }
             else
             {

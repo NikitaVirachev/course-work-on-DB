@@ -31,14 +31,22 @@ public:
 
     QTcpSocket* socket;
     QByteArray Data;
+    QByteArray itog;
 
-
+    QStandardItemModel* movies = new QStandardItemModel(nullptr);
+    QStandardItemModel* director = new QStandardItemModel(nullptr);
+    QStandardItemModel* studio = new QStandardItemModel(nullptr);
+    QStandardItemModel* protagonist = new QStandardItemModel(nullptr);
+    QStandardItemModel* actor = new QStandardItemModel(nullptr);
 
     int requireSize;
     bool complexData = false;
     bool pictureArrives = false;
     bool actorPortraitArrives = false;
     bool scenarioArrives = false;
+
+    QByteArray newPoster;
+    QByteArray newScenario;
 
     QJsonDocument doc;
     QJsonParseError docError;
@@ -48,6 +56,8 @@ public slots:
     void socketDisc();
     void conToHost(QString);
     void conToDB(QString, QString, QString, QString);
+    void preparingAddMovie(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
+    void outputData();
 
 private slots:
     void on_action_triggered();
