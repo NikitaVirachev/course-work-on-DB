@@ -12,6 +12,8 @@ addMovie::addMovie(QWidget *parent) :
     ui->label_8->clear();
     ui->dateEdit->setDate(QDate::currentDate());
     ui->pushButton_3->setEnabled(false);
+    ui->progressBar->setRange(0,0);
+    ui->progressBar->hide();
 }
 
 addMovie::~addMovie()
@@ -49,6 +51,7 @@ void addMovie::acceptData(QList<QString> listMovieID, QList <QString> listDirect
 
 void addMovie::on_pushButton_3_clicked()
 {
+    ui->progressBar->show();
     emit sendMovieSignal(ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                          ui->comboBox->currentText(), ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), newPoster,
                          ui->textEdit->toPlainText());

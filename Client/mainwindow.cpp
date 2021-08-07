@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent):
     ui->tableView_5->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->label->clear();
     ui->label_2->clear();
+    ui->progressBar->setRange(0,0);
+    ui->progressBar->hide();
+    ui->menu_2->setEnabled(false);
 
     socket = new QTcpSocket(this);
         connect(socket,SIGNAL(readyRead()), this, SLOT(socketReady()));
@@ -92,6 +95,7 @@ void MainWindow::outputData()
     ui->label->clear();
     ui->label_2->clear();
     ui->textEdit->clear();
+
     QStringList listHeaderMovies;
     listHeaderMovies.append("Номер фильма");
     listHeaderMovies.append("Название фильма");
@@ -155,6 +159,7 @@ void MainWindow::socketReady()
             {
                 outputData();
                 logwin->hide();
+                ui->menu_2->setEnabled(true);
                 QMessageBox::information(this, "Информация", "Соединение установлено");
             }
             else if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "size"))
@@ -350,6 +355,8 @@ void MainWindow::socketReady()
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "movieAddedSuccessfully"))
             {
                 addMovieWin->hide();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Фильм успешно добавлен");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -364,6 +371,8 @@ void MainWindow::socketReady()
             else if ((doc.object().value("type").toString() == "updateData") && (doc.object().value("params").toString() == "itog"))
             {
                 outputData();
+                ui->progressBar->hide();
+                ui->menubar->setEnabled(true);
                 QMessageBox::information(this, "Информация", "Данные обновлены");
             }
             else
@@ -424,7 +433,8 @@ void MainWindow::socketReady()
             if ((scenarioArrives) && (requireSize == Data.size()))
             {
                 ui->textEdit->setText(Data);
-
+                ui->progressBar->hide();
+                ui->menubar->setEnabled(true);
                 scenarioArrives = false;
             }
             else
@@ -451,6 +461,16 @@ void MainWindow::on_action_triggered()
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
+    director->clear();
+    studio->clear();
+    protagonist->clear();
+    actor->clear();
+    ui->label->clear();
+    ui->label_2->clear();
+    ui->textEdit->clear();
+    ui->progressBar->show();
+    ui->menubar->setEnabled(false);
+
     if (socket->isOpen())
     {
         int row = index.row();

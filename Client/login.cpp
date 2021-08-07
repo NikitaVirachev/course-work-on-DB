@@ -14,6 +14,8 @@ login::login(QWidget *parent) :
     ui->lineEdit_3->setText("B1");
     ui->lineEdit_4->setText("user1");
     ui->lineEdit_5->setText("123");
+    ui->progressBar->setRange(0,0);
+    ui->progressBar->hide();
 }
 
 login::~login()
@@ -93,6 +95,7 @@ void login::on_lineEdit_5_textChanged(const QString &arg1)
 
 void login::on_pushButton_clicked()
 {
+    ui->progressBar->show();
     emit sendSignalToHost(ui->lineEdit->text());
     emit sendSignalToDB(ui->lineEdit_2->text(), ui->lineEdit_3->text(), ui->lineEdit_4->text(), ui->lineEdit_5->text());
 }
