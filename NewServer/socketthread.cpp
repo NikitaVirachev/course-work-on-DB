@@ -377,6 +377,35 @@ void socketThread::mySocketReady()
             qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
+        else if ((doc.object().value("type").toString() == "addNewDirector") && (doc.object().value("params").toString() == "data"))
+        {
+            QString newDirectorID;
+            QSqlQuery* queryNewDirectorID = new QSqlQuery(db);
+            if (queryNewDirectorID->exec("SELECT MAX(DirectorID) FROM Director"))
+            {
+                queryNewDirectorID->first();
+                newDirectorID = QString::number(queryNewDirectorID->value(0).toInt() + 1);
+            }
+
+            QSqlQuery* query = new QSqlQuery(db);
+            query->prepare("INSERT INTO Director (DirectorID, FirstName, LastName, DateOfBirth) "
+                           "VALUES (:DirectorID, :FirstName, :LastName, :DateOfBirth)");
+            query->bindValue(":DirectorID", newDirectorID);
+            query->bindValue(":FirstName", doc.object().value("firstName").toString());
+            query->bindValue(":LastName", doc.object().value("lastName").toString());
+            query->bindValue(":DateOfBirth", doc.object().value("dateOfBirth").toString());
+
+            if(!query->exec())
+            {
+                qDebug() << "Запрос на добавление режиссёра составлен неверно!";
+            }
+            else
+            {
+                qDebug()<<"Клиент " << socketDescriptor << " добавил нового режиссёра с id = " << newDirectorID;
+                socket->write("{\"type\":\"addNewDirector\",\"params\":\"directorAddedSuccessfully\"}");
+                socket->waitForBytesWritten(500);
+            }
+        }
         else
         {
             complexData = true;

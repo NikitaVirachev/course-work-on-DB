@@ -13,6 +13,7 @@
 #include <QBuffer>
 #include "login.h"
 #include "addmovie.h"
+#include "adddirector.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,6 +29,7 @@ public:
 
     login* logwin;
     addMovie* addMovieWin;
+    addDirector* addDirectorWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -58,6 +60,7 @@ public slots:
     void conToDB(QString, QString, QString, QString);
     void preparingAddMovie(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
     void outputData();
+    void preparingAddDirector(QString, QString, QString);
 
 private slots:
     void on_action_triggered();
@@ -67,6 +70,8 @@ private slots:
     void on_action_2_triggered();
 
     void on_action_3_triggered();
+
+    void on_action_4_triggered();
 
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);

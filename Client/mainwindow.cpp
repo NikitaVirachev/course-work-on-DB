@@ -130,6 +130,23 @@ void MainWindow::outputData()
     ui->tableView->setModel(movies);
 }
 
+void MainWindow::preparingAddDirector(QString firstName, QString lastName, QString dateOfBirth)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"addNewDirector\",\"params\":\"data\""
+                      ",\"firstName\":\"" + firstName.toUtf8() +
+                      "\",\"lastName\":\"" + lastName.toUtf8() +
+                      "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -375,6 +392,11 @@ void MainWindow::socketReady()
                 ui->menubar->setEnabled(true);
                 QMessageBox::information(this, "Информация", "Данные обновлены");
             }
+            else if ((doc.object().value("type").toString() == "addNewDirector") && (doc.object().value("params").toString() == "directorAddedSuccessfully"))
+            {
+                addDirectorWin->hide();
+                QMessageBox::information(this, "Информация", "Режиссёр успешно добавлен");
+            }
             else
             {
                 complexData = true;
@@ -496,5 +518,16 @@ void MainWindow::on_action_3_triggered()
     ui->menubar->setEnabled(false);
     socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
     socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_4_triggered()
+{
+    addDirectorWin = new addDirector();
+
+    addDirectorWin->setWindowTitle("Добавить режиссёра");
+    addDirectorWin->show();
+
+    connect(addDirectorWin,SIGNAL(sendAddDirectorSignal(QString, QString, QString)), this, SLOT(preparingAddDirector(QString, QString, QString)));
 }
 

@@ -306,6 +306,7 @@
      <string>Добавление</string>
     </property>
     <addaction name="action_2"/>
+    <addaction name="action_4"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -324,6 +325,11 @@
   <action name="action_3">
    <property name="text">
     <string>Обновить</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>Добавить режиссёра</string>
    </property>
   </action>
  </widget>

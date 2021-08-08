@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QDebug>
-#include <QTcpSocket>
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -19,7 +18,6 @@ public:
     explicit addMovie(QWidget *parent = nullptr);
     ~addMovie();
 
-    QTcpSocket* localSocket;
     QList<QString> localListMovieID;
     QPixmap newPoster;
     QFile newScenario;
