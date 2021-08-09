@@ -147,6 +147,21 @@ void MainWindow::preparingAddDirector(QString firstName, QString lastName, QStri
     }
 }
 
+void MainWindow::preparingAddStudio(QString studioName)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"addNewStudio\",\"params\":\"data\""
+                      ",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -397,6 +412,42 @@ void MainWindow::socketReady()
                 addDirectorWin->hide();
                 QMessageBox::information(this, "Информация", "Режиссёр успешно добавлен");
             }
+            else if ((doc.object().value("type").toString() == "resultSelectAllStudioName") && (doc.object().value("params").toString() == "size"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                socket->write("{\"type\":\"resultSelectAllStudioName\",\"params\":\"requestItog\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "resultSelectAllStudioName") && (doc.object().value("params").toString() == "itog"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listStudioName;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listStudioName.append(docArr.at(i).toObject().value("StudioName").toString());
+                }
+
+                addStudioWin = new addStudio();
+
+                connect(this,SIGNAL(sendStudioNames(QList <QString>)), addStudioWin, SLOT(acceptData(QList <QString>)));
+                emit sendStudioNames(listStudioName);
+
+                addStudioWin->setWindowTitle("Добавить киностудию");
+                addStudioWin->show();
+
+                connect(addStudioWin,SIGNAL(sendAddStudioSignal(QString)), this, SLOT(preparingAddStudio(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "addNewStudio") && (doc.object().value("params").toString() == "studioAddedSuccessfully"))
+            {
+                addStudioWin->hide();
+                QMessageBox::information(this, "Информация", "Киностудия успешно добавлена");
+            }
+            else if ((doc.object().value("type").toString() == "addNewStudio") && (doc.object().value("params").toString() == "studioAddedFail"))
+            {
+                QMessageBox::information(this, "Ошибка", "Такая киностудия уже есть");
+                connect(this,SIGNAL(sendRestartStudioWin()), addStudioWin, SLOT(restartStudioWin()));
+                emit sendRestartStudioWin();
+            }
             else
             {
                 complexData = true;
@@ -529,5 +580,12 @@ void MainWindow::on_action_4_triggered()
     addDirectorWin->show();
 
     connect(addDirectorWin,SIGNAL(sendAddDirectorSignal(QString, QString, QString)), this, SLOT(preparingAddDirector(QString, QString, QString)));
+}
+
+
+void MainWindow::on_action_5_triggered()
+{
+    socket->write("{\"type\":\"selectAllStudioName\",\"params\":\"findSize\"}");
+    socket->waitForBytesWritten(500);
 }
 

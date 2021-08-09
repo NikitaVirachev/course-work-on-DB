@@ -11,6 +11,7 @@ CONFIG += c++11
 SOURCES += \
     adddirector.cpp \
     addmovie.cpp \
+    addstudio.cpp \
     login.cpp \
     main.cpp \
     mainwindow.cpp
@@ -18,12 +19,14 @@ SOURCES += \
 HEADERS += \
     adddirector.h \
     addmovie.h \
+    addstudio.h \
     login.h \
     mainwindow.h
 
 FORMS += \
     adddirector.ui \
     addmovie.ui \
+    addstudio.ui \
     login.ui \
     mainwindow.ui
 

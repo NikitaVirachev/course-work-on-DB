@@ -406,6 +406,81 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "selectAllStudioName") && (doc.object().value("params").toString() == "findSize"))
+        {
+            itog = "{\"type\":\"resultSelectAllStudioName\",\"params\":\"itog\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                {
+                    while (queryAllStudioName->next())
+                    {
+                        itog.append("{\"StudioName\":\""+queryAllStudioName->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write("{\"type\":\"resultSelectAllStudioName\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "resultSelectAllStudioName") && (doc.object().value("params").toString() == "requestItog"))
+        {
+            socket->write(itog);
+            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "addNewStudio") && (doc.object().value("params").toString() == "data"))
+        {
+            if (db.isOpen())
+            {
+                QList <QString> listStudioName;
+                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                {
+                    while (queryAllStudioName->next())
+                    {
+                        listStudioName.append(queryAllStudioName->value(0).toString());
+                    }
+                }
+
+                bool presenceRepeat = false;
+                foreach( QString value, listStudioName )
+                {
+                    if (doc.object().value("studioName").toString() == value)
+                    {
+                        presenceRepeat = true;
+                    }
+                }
+
+                if (presenceRepeat)
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " попыталься добавить киностудию " << doc.object().value("studioName").toString() << ", которая уже есть";
+                    socket->write("{\"type\":\"addNewStudio\",\"params\":\"studioAddedFail\"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    QSqlQuery* query = new QSqlQuery(db);
+                    query->prepare("INSERT INTO Studio (StudioName) "
+                                   "VALUES (:StudioName)");
+                    query->bindValue(":StudioName", doc.object().value("studioName").toString());
+
+                    if(!query->exec())
+                    {
+                        qDebug() << "Запрос на добавление киностудии составлен неверно!";
+                    }
+                    else
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " добавил новую киностудию с названием " << doc.object().value("studioName").toString();
+                        socket->write("{\"type\":\"addNewStudio\",\"params\":\"studioAddedSuccessfully\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                }
+            }
+        }
         else
         {
             complexData = true;

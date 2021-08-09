@@ -14,6 +14,7 @@
 #include "login.h"
 #include "addmovie.h"
 #include "adddirector.h"
+#include "addstudio.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,6 +31,7 @@ public:
     login* logwin;
     addMovie* addMovieWin;
     addDirector* addDirectorWin;
+    addStudio* addStudioWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -61,6 +63,7 @@ public slots:
     void preparingAddMovie(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
     void outputData();
     void preparingAddDirector(QString, QString, QString);
+    void preparingAddStudio(QString);
 
 private slots:
     void on_action_triggered();
@@ -73,8 +76,12 @@ private slots:
 
     void on_action_4_triggered();
 
+    void on_action_5_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
+    void sendStudioNames(QList <QString>);
+    void sendRestartStudioWin();
 
 private:
     Ui::MainWindow *ui;
