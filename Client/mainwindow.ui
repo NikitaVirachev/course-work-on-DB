@@ -308,6 +308,7 @@
     <addaction name="action_2"/>
     <addaction name="action_4"/>
     <addaction name="action_5"/>
+    <addaction name="action_6"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -336,6 +337,11 @@
   <action name="action_5">
    <property name="text">
     <string>Добавить киностудию</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>Добавить актёра</string>
    </property>
   </action>
  </widget>

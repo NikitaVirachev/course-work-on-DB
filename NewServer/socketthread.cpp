@@ -321,7 +321,7 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "basicInformation"))
         {
-            qDebug()<<"Клиент " << socketDescriptor << " хочет добавить новый фильм";
+            //qDebug()<<"Клиент " << socketDescriptor << " хочет добавить новый фильм";
 
             newTitle = doc.object().value("title").toString();
             newReleaseDate = doc.object().value("releaseDate").toString();
@@ -481,6 +481,25 @@ void socketThread::mySocketReady()
                 }
             }
         }
+        else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "basicInformation"))
+        {
+            //qDebug()<<"Клиент " << socketDescriptor << " хочет добавить нового актёра";
+
+            newFirstNameActor = doc.object().value("firstName").toString();
+            newLastNameActor = doc.object().value("lastName").toString();
+            newDateOfBirthActor = doc.object().value("dateOfBirth").toString();
+
+            socket->write("{\"type\":\"addNewActor\",\"params\":\"findSizeActorPortrait\"}");
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "sizeActorPortrait"))
+        {
+            requireSize = doc.object().value("length").toInt();
+
+            actorPortraitArrives = true;
+            socket->write("{\"type\":\"addNewActor\",\"params\":\"requestNewActorPortrait\"}");
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             complexData = true;
@@ -545,6 +564,55 @@ void socketThread::mySocketReady()
                     socket->write("{\"type\":\"addNewMovie\",\"params\":\"movieAddedSuccessfully\"}");
                     socket->waitForBytesWritten(500);
                 }
+            }
+        }
+        else
+        {
+            complexData = true;
+            mySocketReady();
+        }
+    }
+    else if (actorPortraitArrives)
+    {
+        //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+        if (requireSize == Data.size())
+        {
+            actorPortraitArrives = false;
+
+            if (db.isOpen())
+            {
+                QString newActorID;
+                QSqlQuery* queryNewActorID = new QSqlQuery(db);
+                if (queryNewActorID->exec("SELECT MAX(ActorID) FROM Actor"))
+                {
+                    queryNewActorID->first();
+                    newActorID = QString::number(queryNewActorID->value(0).toInt() + 1);
+                }
+
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("INSERT INTO Actor (ActorID, FirstName, LastName, DateOfBirth, ActorPortrait) "
+                               "VALUES (:ActorID, :FirstName, :LastName, :DateOfBirth, :ActorPortrait)");
+                query->bindValue(":ActorID", newActorID);
+                query->bindValue(":FirstName", newFirstNameActor);
+                query->bindValue(":LastName", newLastNameActor);
+                query->bindValue(":DateOfBirth", newDateOfBirthActor);
+                query->bindValue(":ActorPortrait", Data);
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на добавление актёра составлен неверно!";
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " добавил нового актёра с id = " << newActorID;
+                    socket->write("{\"type\":\"addNewActor\",\"params\":\"actorAddedSuccessfully\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+            else
+            {
+                socket->write("{\"type\":\"connect\", \"status\":\"no\"}");
+                qDebug()<<"Соединение с БД НЕ установлено";
             }
         }
         else

@@ -81,8 +81,6 @@ void MainWindow::preparingAddMovie(QString title, QString releaseDate, QString b
     {
         QMessageBox::information(this,"Инофрмация","Соединение не установлено");
     }
-
-    //addMovieWin->hide();
 }
 
 void MainWindow::outputData()
@@ -153,6 +151,27 @@ void MainWindow::preparingAddStudio(QString studioName)
     {
         socket->write("{\"type\":\"addNewStudio\",\"params\":\"data\""
                       ",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingAddActor(QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
+{
+    QBuffer buffer(&newActorPortrait);
+    buffer.open(QIODevice::WriteOnly);
+    actorPortrait.save(&buffer, "PNG");
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"addNewActor\",\"params\":\"basicInformation\""
+                      ",\"firstName\":\"" + firstName.toUtf8() +
+                      "\",\"lastName\":\"" + lastName.toUtf8() +
+                      "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -448,6 +467,21 @@ void MainWindow::socketReady()
                 connect(this,SIGNAL(sendRestartStudioWin()), addStudioWin, SLOT(restartStudioWin()));
                 emit sendRestartStudioWin();
             }
+            else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "findSizeActorPortrait"))
+            {
+                socket->write("{\"type\":\"addNewActor\",\"params\":\"sizeActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "requestNewActorPortrait"))
+            {
+                socket->write(newActorPortrait);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "actorAddedSuccessfully"))
+            {
+                addActorWin->hide();
+                QMessageBox::information(this, "Информация", "Актёр успешно добавлен");
+            }
             else
             {
                 complexData = true;
@@ -587,5 +621,16 @@ void MainWindow::on_action_5_triggered()
 {
     socket->write("{\"type\":\"selectAllStudioName\",\"params\":\"findSize\"}");
     socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_6_triggered()
+{
+    addActorWin = new addActor();
+
+    addActorWin->setWindowTitle("Добавить актёра");
+    addActorWin->show();
+
+    connect(addActorWin,SIGNAL(sendActorSignal(QString, QString, QString, QPixmap)), this, SLOT(preparingAddActor(QString, QString, QString, QPixmap)));
 }
 

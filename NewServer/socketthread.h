@@ -45,6 +45,9 @@ public:
     QString newDirectorID;
     QString newStudioName;
     QByteArray newPoster;
+    QString newFirstNameActor;
+    QString newLastNameActor;
+    QString newDateOfBirthActor;
 
 public slots:
     void mySocketReady();
