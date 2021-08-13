@@ -36,7 +36,12 @@ public:
     bool posterArrives = false;
     bool actorPortraitArrives = false;
     bool scenarioArrives = false;
+    bool newPosterArrives = false;
+    bool newScenarioArrives = false;
+    bool posterAndScenario = false;
 
+    QString newMovieID;
+    QString oldMovieID;
     QString newTitle;
     QString newReleaseDate;
     QString newBoxOffice;
@@ -48,6 +53,8 @@ public:
     QString newFirstNameActor;
     QString newLastNameActor;
     QString newDateOfBirthActor;
+
+    bool checkMovieID();
 
 public slots:
     void mySocketReady();

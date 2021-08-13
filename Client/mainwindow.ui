@@ -303,15 +303,23 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Добавление</string>
+     <string>Добавить</string>
     </property>
     <addaction name="action_2"/>
     <addaction name="action_4"/>
     <addaction name="action_5"/>
     <addaction name="action_6"/>
+    <addaction name="action_7"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Изменение</string>
+    </property>
+    <addaction name="action_8"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action">
@@ -342,6 +350,16 @@
   <action name="action_6">
    <property name="text">
     <string>Добавить актёра</string>
+   </property>
+  </action>
+  <action name="action_7">
+   <property name="text">
+    <string>Добавить главного героя</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
+    <string>Изменить фильм</string>
    </property>
   </action>
  </widget>

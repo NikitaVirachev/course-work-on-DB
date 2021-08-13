@@ -12,26 +12,32 @@ SOURCES += \
     addactor.cpp \
     adddirector.cpp \
     addmovie.cpp \
+    addprotagonist.cpp \
     addstudio.cpp \
     login.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    updatemovie.cpp
 
 HEADERS += \
     addactor.h \
     adddirector.h \
     addmovie.h \
+    addprotagonist.h \
     addstudio.h \
     login.h \
-    mainwindow.h
+    mainwindow.h \
+    updatemovie.h
 
 FORMS += \
     addactor.ui \
     adddirector.ui \
     addmovie.ui \
+    addprotagonist.ui \
     addstudio.ui \
     login.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    updatemovie.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

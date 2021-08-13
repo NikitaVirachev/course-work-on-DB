@@ -22,6 +22,30 @@ void socketThread::run()
     exec();
 }
 
+bool socketThread::checkMovieID(QString movieID)
+{
+    QList <QString> listMovieID;
+
+    QSqlQuery* queryAllMovieID = new QSqlQuery(db);
+    if (queryAllMovieID->exec("SELECT MovieID FROM Movie"))
+    {
+        while (queryAllMovieID->next())
+        {
+            listMovieID.append(queryAllMovieID->value(0).toString());
+        }
+    }
+
+    foreach( QString value, listMovieID )
+    {
+        if (value == movieID)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void socketThread::downloadInformationAboutFilms()
 {
     QSqlQuery* movies = new QSqlQuery(db);
@@ -64,8 +88,8 @@ void socketThread::mySocketReady()
     doc = QJsonDocument::fromJson(Data, &docError);
 
     if ((docError.errorString()=="no error occurred") && (!posterArrives) && (!actorPortraitArrives) && (!scenarioArrives))
-    {
-        if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "findLength"))
+    {        
+        if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "connectionInformation"))
         {
             qDebug()<< "Клиент " << socketDescriptor<<" запрашивает подключение к серверу БД";
             QString connectionName = QString::number(socketDescriptor);
@@ -80,7 +104,6 @@ void socketThread::mySocketReady()
             if (db.isOpen())
             {
                 qDebug()<<"Соединение с БД установлено";
-
                 downloadInformationAboutFilms();
             }
             else
@@ -91,22 +114,23 @@ void socketThread::mySocketReady()
 
             itog.append("]}");
 
-            socket->write("{\"type\":\"connection\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
+            socket->write(itog);
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "requestItog"))
         {
+            //qDebug() << "Я тут";
             socket->write(itog);
             qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
-        else if ((doc.object().value("type").toString() == "select") && (doc.object().value("params").toString() == "findLength") && (doc.object().value("value").toString() == "informationOnFilm"))
+        else if ((doc.object().value("type").toString() == "selectSelectInformationOnFilm") && (doc.object().value("params").toString() == "informationOnFilm"))
         {
             movieID = doc.object().value("id").toString();
 
             qDebug()<< "Клиент " << socketDescriptor<<" запрашивает информацию о фильме № " << movieID;
 
-            itog = "{\"type\":\"resultSelectInformationOnFilm\",\"resultDirector\":[";
+            itog = "{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"resultSelectInformationOnFilm\",\"resultDirector\":[";
 
             if (db.isOpen())
             {
@@ -215,15 +239,15 @@ void socketThread::mySocketReady()
                     qDebug() << "Ошибка в получении id главного героя: " << queryActor->lastError().text();
                 }
             }
-            itog.append("],\"status\":\"yes\"}");
+            itog.append("]}");
 
-            socket->write("{\"type\":\"select\",\"params\":\"size\",\"value\":\"informationOnFilm\",\"length\":"+QByteArray::number(itog.size())+"}");
+            socket->write(itog);
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "select") && (doc.object().value("value").toString() == "informationOnFilm") && (doc.object().value("params").toString() == "requestItog"))
         {
             socket->write(itog);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "afterSelectInformationOnFilm") && (doc.object().value("params").toString() == "dataReceived"))
@@ -245,7 +269,7 @@ void socketThread::mySocketReady()
         else if (doc.object().value("type").toString() == "selectPoster")
         {
             socket->write(baPoster);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "selectActorPortrait") && (doc.object().value("params").toString() == "selectSize"))
@@ -266,7 +290,7 @@ void socketThread::mySocketReady()
         else if (doc.object().value("type").toString() == "selectActorPortrait")
         {
             socket->write(baActorPortrait);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "selectScenario") && (doc.object().value("params").toString() == "selectSize"))
@@ -287,7 +311,7 @@ void socketThread::mySocketReady()
         else if (doc.object().value("type").toString() == "selectScenario")
         {
             socket->write(baScenario);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if (doc.object().value("type").toString() == "selectAllID")
@@ -316,7 +340,7 @@ void socketThread::mySocketReady()
         else if (doc.object().value("type").toString() == "resultSelectAllID")
         {
             socket->write(itog);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "basicInformation"))
@@ -356,7 +380,7 @@ void socketThread::mySocketReady()
 
             if (db.isOpen())
             {
-                qDebug()<<"Обновление";
+                qDebug()<< "Клиент " << socketDescriptor<<" запрашивает обновление информации о фильмах";
 
                 downloadInformationAboutFilms();
             }
@@ -374,7 +398,7 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateData") && (doc.object().value("params").toString() == "requestItog"))
         {
             socket->write(itog);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "addNewDirector") && (doc.object().value("params").toString() == "data"))
@@ -429,7 +453,7 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "resultSelectAllStudioName") && (doc.object().value("params").toString() == "requestItog"))
         {
             socket->write(itog);
-            qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "addNewStudio") && (doc.object().value("params").toString() == "data"))
@@ -500,8 +524,283 @@ void socketThread::mySocketReady()
             socket->write("{\"type\":\"addNewActor\",\"params\":\"requestNewActorPortrait\"}");
             socket->waitForBytesWritten(500);
         }
+        else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "findSize"))
+        {
+            itog = "{\"type\":\"selectAllActorID\",\"params\":\"itog\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllActorID = new QSqlQuery(db);
+                if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
+                {
+                    while (queryAllActorID->next())
+                    {
+                        itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write("{\"type\":\"selectAllActorID\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "requestItog"))
+        {
+            socket->write(itog);
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "data"))
+        {
+            QString newProtagonistID;
+            QSqlQuery* queryNewProtagonistID = new QSqlQuery(db);
+            if (queryNewProtagonistID->exec("SELECT MAX(ProtagonistID) FROM Protagonist"))
+            {
+                queryNewProtagonistID->first();
+                newProtagonistID = QString::number(queryNewProtagonistID->value(0).toInt() + 1);
+            }
+
+            QSqlQuery* query = new QSqlQuery(db);
+            query->prepare("INSERT INTO Protagonist (ProtagonistID, ActorID, Name) "
+                           "VALUES (:ProtagonistID, :ActorID, :Name)");
+            query->bindValue(":ProtagonistID", newProtagonistID);
+            query->bindValue(":ActorID", doc.object().value("actorID").toString());
+            query->bindValue(":Name", doc.object().value("name").toString());
+
+            if(!query->exec())
+            {
+                qDebug() << "Запрос на добавление режиссёра составлен неверно!";
+            }
+            else
+            {
+                qDebug()<<"Клиент " << socketDescriptor << " добавил нового главного героя с id = " << newProtagonistID;
+                socket->write("{\"type\":\"addNewProtagonist\",\"params\":\"protagonistAddedSuccessfully\"}");
+                socket->waitForBytesWritten(500);
+            }
+        }
+        else if ((doc.object().value("type").toString() == "selectAllMovieID") && (doc.object().value("params").toString() == "findAllMovieID"))
+        {
+            itog = "{\"type\":\"selectAllMovieID\",\"params\":\"itog\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllMovieID = new QSqlQuery(db);
+                if (queryAllMovieID->exec("SELECT MovieID FROM Movie"))
+                {
+                    while (queryAllMovieID->next())
+                    {
+                        itog.append("{\"MovieID\":\""+queryAllMovieID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "findMovieInformation"))
+        {
+            movieID = doc.object().value("id").toString();
+
+            itog = "{\"type\":\"updateMovie\",\"params\":\"movieInformation\",";
+
+            QSqlQuery* movies = new QSqlQuery(db);
+            if (movies->exec("SELECT Title, ReleaseDate, BoxOffice, Budget, StudioName, DirectorID, ProtagonistID FROM Movie WHERE MovieID = " + movieID))
+            {
+                movies->first();
+                itog.append("\"title\":\""+movies->value(0).toString()+
+                            "\",\"releaseDate\":\""+movies->value(1).toString()+
+                            "\",\"boxOffice\":\""+movies->value(2).toString()+
+                            "\",\"budget\":\""+movies->value(3).toString()+
+                            "\",\"studioName\":\""+movies->value(4).toString()+
+                            "\",\"directorID\":\""+movies->value(5).toString()+
+                            "\",\"protagonistID\":\""+movies->value(6).toString()+
+                            "\"");
+            }
+            else
+            {
+                qDebug()<<"Запрос на фильмы не выполнен";
+            }
+
+            itog.append("}");
+
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+
+            delete movies;
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestPosterSize"))
+        {
+            if (db.isOpen())
+            {
+                QSqlQuery* queryPoster = new QSqlQuery(db);
+                if (queryPoster->exec("SELECT Poster FROM Movie WHERE MovieID = " + movieID))
+                {
+                    queryPoster->first();
+                    baPoster = queryPoster->value(0).toByteArray();
+
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizePoster\",\"length\":"+QByteArray::number(baPoster.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "selectPoster"))
+        {
+            socket->write(baPoster);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestScenarioSize"))
+        {
+            if (db.isOpen())
+            {
+                QSqlQuery* queryScenario = new QSqlQuery(db);
+                if (queryScenario->exec("SELECT Scenario FROM Movie WHERE MovieID = " + movieID))
+                {
+                    queryScenario->first();
+                    baScenario = queryScenario->value(0).toByteArray();
+
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeScenario\",\"length\":"+QByteArray::number(baScenario.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "selectScenario"))
+        {
+            socket->write(baScenario);
+            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestAllID"))
+        {
+            itog = "{\"type\":\"updateMovie\",\"params\":\"resultAllID\",\"Director\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryDirectorID = new QSqlQuery(db);
+                if (queryDirectorID->exec("SELECT DirectorID FROM Director"))
+                {
+                    while (queryDirectorID->next())
+                    {
+                        itog.append("{\"ID\":\""+queryDirectorID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+
+                itog.append("],\"Protagonist\":[");
+
+                QSqlQuery* queryProtagonistID = new QSqlQuery(db);
+                if (queryProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
+                {
+                    while (queryProtagonistID->next())
+                    {
+                        itog.append("{\"ID\":\""+queryProtagonistID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+
+                itog.append("],\"Studio\":[");
+
+                QSqlQuery* queryStudioName = new QSqlQuery(db);
+                if (queryStudioName->exec("SELECT StudioName FROM Studio"))
+                {
+                    while (queryStudioName->next())
+                    {
+                        itog.append("{\"StudioName\":\""+queryStudioName->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sendMovieInformation"))
+        {
+            newMovieID = doc.object().value("newMovieID").toString();
+            oldMovieID = doc.object().value("oldMovieID").toString();
+            newTitle = doc.object().value("title").toString();
+            newReleaseDate = doc.object().value("releaseDate").toString();
+            newBoxOffice = doc.object().value("boxOffice").toString();
+            newBudget = doc.object().value("budget").toString();
+            newProtagonistID = doc.object().value("protagonistID").toString();
+            newDirectorID = doc.object().value("directorID").toString();
+            newStudioName = doc.object().value("studioName").toString();
+
+            if (doc.object().value("additionally").toString() == "basicOnly")
+            {
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("UPDATE Movie SET MovieID=?, Title=?, ReleaseDate=?, BoxOffice=?, Budget=?, ProtagonistID=?, DirectorID=?, StudioName=? WHERE MovieID=?");
+                query->bindValue(0, newMovieID);
+                query->bindValue(1, newTitle);
+                query->bindValue(2, newReleaseDate);
+                query->bindValue(3, newBoxOffice);
+                query->bindValue(4, newBudget);
+                query->bindValue(5, newProtagonistID);
+                query->bindValue(6, newDirectorID);
+                query->bindValue(7, newStudioName);
+                query->bindValue(8, oldMovieID);
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на обновление фильма составлен неверно!";
+                }
+                else
+                {
+                    if (checkMovieID(newMovieID))
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                    else
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                }
+            }
+            else if (doc.object().value("additionally").toString() == "poster")
+            {
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestSizeNewPoster\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if (doc.object().value("additionally").toString() == "scenario")
+            {
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestSizeNewScenario\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if (doc.object().value("additionally").toString() == "posterAndScenario")
+            {
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestSizeNewPoster\",\"additionally\":\"scenario\"}");
+                socket->waitForBytesWritten(500);
+            }
+
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sizeNewPoster"))
+        {
+            requireSize = doc.object().value("length").toInt();
+
+            newPosterArrives = true;
+
+            if (doc.object().value("additionally").toString() == "scenario") posterAndScenario = true;
+
+            socket->write("{\"type\":\"updateMovie\",\"params\":\"requestNewPoster\"}");
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sizeNewScenario"))
+        {
+            requireSize = doc.object().value("length").toInt();
+
+            newScenarioArrives = true;
+            socket->write("{\"type\":\"updateMovie\",\"params\":\"requestNewScenario\"}");
+            socket->waitForBytesWritten(500);
+        }
         else
         {
+            //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
             complexData = true;
             mySocketReady();
         }
@@ -573,7 +872,7 @@ void socketThread::mySocketReady()
         }
     }
     else if (actorPortraitArrives)
-    {
+    {        
         //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
         if (requireSize == Data.size())
         {
@@ -621,10 +920,144 @@ void socketThread::mySocketReady()
             mySocketReady();
         }
     }
+    else if (newPosterArrives)
+    {
+        //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+        if (requireSize == Data.size())
+        {
+            newPoster = Data;
+
+            if (!posterAndScenario)
+            {
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("UPDATE Movie SET MovieID=?, Title=?, ReleaseDate=?, BoxOffice=?, Budget=?, ProtagonistID=?, DirectorID=?, StudioName=?, Poster=? WHERE MovieID=?");
+                query->bindValue(0, newMovieID);
+                query->bindValue(1, newTitle);
+                query->bindValue(2, newReleaseDate);
+                query->bindValue(3, newBoxOffice);
+                query->bindValue(4, newBudget);
+                query->bindValue(5, newProtagonistID);
+                query->bindValue(6, newDirectorID);
+                query->bindValue(7, newStudioName);
+                query->bindValue(8, newPoster);
+                query->bindValue(9, oldMovieID);
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на обновление фильма составлен неверно!";
+                }
+                else
+                {
+                    if (checkMovieID(newMovieID))
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                    else
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                }
+            }
+            else
+            {
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestSizeNewScenario\"}");
+                socket->waitForBytesWritten(500);
+            }
+
+            newPosterArrives = false;
+        }
+        else
+        {
+            complexData = true;
+            mySocketReady();
+        }
+    }
+    else if (newScenarioArrives)
+    {
+        //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+        if (requireSize == Data.size())
+        {
+            if (!posterAndScenario)
+            {
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("UPDATE Movie SET MovieID=?, Title=?, ReleaseDate=?, BoxOffice=?, Budget=?, ProtagonistID=?, DirectorID=?, StudioName=?, Scenario=? WHERE MovieID=?");
+                query->bindValue(0, newMovieID);
+                query->bindValue(1, newTitle);
+                query->bindValue(2, newReleaseDate);
+                query->bindValue(3, newBoxOffice);
+                query->bindValue(4, newBudget);
+                query->bindValue(5, newProtagonistID);
+                query->bindValue(6, newDirectorID);
+                query->bindValue(7, newStudioName);
+                query->bindValue(8, Data);
+                query->bindValue(9, oldMovieID);
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на обновление фильма составлен неверно!";
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+            else
+            {
+                posterAndScenario = false;
+
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("UPDATE Movie SET MovieID=?, Title=?, ReleaseDate=?, BoxOffice=?, Budget=?, ProtagonistID=?, DirectorID=?, StudioName=?, Poster=?, Scenario=? WHERE MovieID=?");
+                query->bindValue(0, newMovieID);
+                query->bindValue(1, newTitle);
+                query->bindValue(2, newReleaseDate);
+                query->bindValue(3, newBoxOffice);
+                query->bindValue(4, newBudget);
+                query->bindValue(5, newProtagonistID);
+                query->bindValue(6, newDirectorID);
+                query->bindValue(7, newStudioName);
+                query->bindValue(8, newPoster);
+                query->bindValue(9, Data);
+                query->bindValue(10, oldMovieID);
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на обновление фильма составлен неверно!";
+                }
+                else
+                {
+                    if (checkMovieID(newMovieID))
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                    else
+                    {
+                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                }
+            }
+
+            newScenarioArrives = false;
+        }
+        else
+        {
+            complexData = true;
+            mySocketReady();
+        }
+    }
     else
     {
         socket->write("{\"type\":\"resultSelect\", \"status\":\"no\"}");
-        qDebug()<<"Соединение с БД НЕ установлено";
+        qDebug()<<"Соединение с БД НЕ установлено!";
     }
 }
 

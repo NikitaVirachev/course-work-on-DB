@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent):
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
     ui->menu_2->setEnabled(false);
+    ui->menu_3->setEnabled(false);
+    ui->action_3->setEnabled(false);
 
     socket = new QTcpSocket(this);
         connect(socket,SIGNAL(readyRead()), this, SLOT(socketReady()));
@@ -42,7 +44,7 @@ void MainWindow::conToDB(QString adressDB, QString nameDB, QString login, QStrin
 {
     if (socket->isOpen())
     {
-        socket->write("{\"type\":\"connection\",\"params\":\"findLength\""
+        socket->write("{\"type\":\"connection\",\"params\":\"connectionInformation\""
                       ",\"adressDB\":\"" + adressDB.toUtf8() +
                       "\",\"nameDB\":\"" + nameDB.toUtf8() +
                       "\",\"login\":\"" + login.toUtf8() +
@@ -181,6 +183,144 @@ void MainWindow::preparingAddActor(QString firstName, QString lastName, QString 
     }
 }
 
+void MainWindow::preparingAddProtagonist(QString name, QString actorID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"addNewProtagonist\",\"params\":\"data\""
+                      ",\"name\":\"" + name.toUtf8() +
+                      "\",\"actorID\":\"" + actorID.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::prepareMovieInformationForUpdate(QString movieID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateMovie\",\"params\":\"findMovieInformation\",\"id\":\"" + movieID.toUtf8() + "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+                                             QString protagonistID, QString studioName, QPixmap poster)
+{
+    QBuffer buffer(&newPoster);
+    buffer.open(QIODevice::WriteOnly);
+    poster.save(&buffer, "PNG");
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"poster\""
+                      ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
+                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
+                      "\",\"title\":\"" + title.toUtf8() +
+                      "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
+                      "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
+                      "\",\"budget\":\"" + budget.toUtf8() +
+                      "\",\"directorID\":\"" + directorID.toUtf8() +
+                      "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
+                      "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+                                               QString protagonistID, QString studioName, QString scenario)
+{
+    newScenario = scenario.toUtf8();
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"scenario\""
+                      ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
+                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
+                      "\",\"title\":\"" + title.toUtf8() +
+                      "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
+                      "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
+                      "\",\"budget\":\"" + budget.toUtf8() +
+                      "\",\"directorID\":\"" + directorID.toUtf8() +
+                      "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
+                      "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QString newMovieID, QString title, QString releaseDate,
+                                                        QString boxOffice, QString budget, QString directorID, QString protagonistID,
+                                                        QString studioName, QPixmap poster, QString scenario)
+{
+    newScenario = scenario.toUtf8();
+
+    QBuffer buffer(&newPoster);
+    buffer.open(QIODevice::WriteOnly);
+    poster.save(&buffer, "PNG");
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"posterAndScenario\""
+                      ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
+                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
+                      "\",\"title\":\"" + title.toUtf8() +
+                      "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
+                      "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
+                      "\",\"budget\":\"" + budget.toUtf8() +
+                      "\",\"directorID\":\"" + directorID.toUtf8() +
+                      "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
+                      "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+                                          QString protagonistID, QString studioName)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"basicOnly\""
+                      ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
+                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
+                      "\",\"title\":\"" + title.toUtf8() +
+                      "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
+                      "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
+                      "\",\"budget\":\"" + budget.toUtf8() +
+                      "\",\"directorID\":\"" + directorID.toUtf8() +
+                      "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
+                      "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -204,29 +344,19 @@ void MainWindow::socketReady()
 
         doc = QJsonDocument::fromJson(Data, &docError);
 
-        if ((docError.errorString()=="no error occurred") && (!pictureArrives) && (!actorPortraitArrives) && (!scenarioArrives))
+        if ((docError.errorString()=="no error occurred") && (!pictureArrives) && (!actorPortraitArrives) && (!scenarioArrives) && (!updPosterArrives) && (!updScenarioArrives))
         {
             if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "itog"))
             {
                 outputData();
                 logwin->hide();
                 ui->menu_2->setEnabled(true);
+                ui->menu_3->setEnabled(true);
+                ui->action_3->setEnabled(true);
+                ui->action->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Соединение установлено");
             }
-            else if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "size"))
-            {
-                //qDebug() << "Поступило: " << doc.object().value("length").toInt();
-                requireSize = doc.object().value("length").toInt();
-                socket->write("{\"type\":\"connection\",\"params\":\"requestItog\"}");
-                socket->waitForBytesWritten(500);
-            }
-            else if ((doc.object().value("type").toString() == "select") && (doc.object().value("params").toString() == "size") && (doc.object().value("value").toString() == "informationOnFilm"))
-            {
-                requireSize = doc.object().value("length").toInt();
-                socket->write("{\"type\":\"select\",\"value\":\"informationOnFilm\",\"params\":\"requestItog\"}");
-                socket->waitForBytesWritten(500);
-            }
-            else if ((doc.object().value("type").toString() == "resultSelectInformationOnFilm") && (doc.object().value("status").toString() == "yes"))
+            else if ((doc.object().value("type").toString() == "selectSelectInformationOnFilm") && (doc.object().value("params").toString() == "resultSelectInformationOnFilm"))
             {
 
                 director->clear();
@@ -482,6 +612,190 @@ void MainWindow::socketReady()
                 addActorWin->hide();
                 QMessageBox::information(this, "Информация", "Актёр успешно добавлен");
             }
+            else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "size"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                socket->write("{\"type\":\"selectAllActorID\",\"params\":\"requestItog\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "itog"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listActorID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listActorID.append(docArr.at(i).toObject().value("ActorID").toString());
+                }
+
+                addProtagonistWin = new addProtagonist();
+
+                connect(this,SIGNAL(sendAddProtagonist(QList <QString>)), addProtagonistWin, SLOT(acceptData(QList <QString>)));
+                emit sendAddProtagonist(listActorID);
+
+                addProtagonistWin->setWindowTitle("Добавить главного героя");
+                addProtagonistWin->show();
+
+                connect(addProtagonistWin,SIGNAL(sendProtagonistSignal(QString, QString)), this, SLOT(preparingAddProtagonist(QString, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "protagonistAddedSuccessfully"))
+            {
+                addProtagonistWin->hide();
+                QMessageBox::information(this, "Информация", "Главный герой успешно добавлен");
+            }
+            else if ((doc.object().value("type").toString() == "selectAllMovieID") && (doc.object().value("params").toString() == "itog"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listMovieID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listMovieID.append(docArr.at(i).toObject().value("MovieID").toString());
+                }
+
+                updateMovieWin = new updateMovie();
+
+                connect(this,SIGNAL(sendUpdateMovie(QList <QString>)), updateMovieWin, SLOT(acceptMovieID(QList <QString>)));
+                emit sendUpdateMovie(listMovieID);
+
+                updateMovieWin->setWindowTitle("Обновить фильм");
+                updateMovieWin->show();
+
+                connect(updateMovieWin,SIGNAL(sendMovieIDSignalUpd(QString)), this, SLOT(prepareMovieInformationForUpdate(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "size"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestItog\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "itog"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listMovieID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listMovieID.append(docArr.at(i).toObject().value("MovieID").toString());
+                }
+
+                updateMovieWin = new updateMovie();
+
+                connect(this,SIGNAL(sendUpdateMovie(QList <QString>)), updateMovieWin, SLOT(acceptMovieID(QList <QString>)));
+                emit sendUpdateMovie(listMovieID);
+
+                updateMovieWin->setWindowTitle("Изменить фильм");
+                updateMovieWin->show();
+
+                connect(updateMovieWin,SIGNAL(sendMovieIDSignalUpd(QString)), this, SLOT(prepareMovieInformationForUpdate(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieInformation"))
+            {
+                updTitle = doc.object().value("title").toString();
+                updReleaseDate = doc.object().value("releaseDate").toString();
+                updBoxOffice = doc.object().value("boxOffice").toString();
+                updBudget = doc.object().value("budget").toString();
+                updMovieStudioName = doc.object().value("studioName").toString();
+                updMovieDirectorID = doc.object().value("directorID").toString();
+                updMovieProtagonistID = doc.object().value("protagonistID").toString();
+
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestPosterSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sizePoster"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                updPosterArrives = true;
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"selectPoster\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sizeScenario"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                updScenarioArrives = true;
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"selectScenario\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "resultAllID"))
+            {
+                QJsonArray directorArr = doc.object().value("Director").toArray();
+                QList <QString> listDirectorID;
+                for (int i = 0; i < directorArr.count(); ++i)
+                {
+                    listDirectorID.append(directorArr.at(i).toObject().value("ID").toString());
+                }
+
+                QJsonArray protagonistArr = doc.object().value("Protagonist").toArray();
+                QList <QString> listProtagonistID;
+                for (int i = 0; i < protagonistArr.count(); ++i)
+                {
+                    listProtagonistID.append(protagonistArr.at(i).toObject().value("ID").toString());
+                }
+
+                QJsonArray studioArr = doc.object().value("Studio").toArray();
+                QList <QString> listStudioName;
+                for (int i = 0; i < studioArr.count(); ++i)
+                {
+                    listStudioName.append(studioArr.at(i).toObject().value("StudioName").toString());
+                }
+
+                connect(this,SIGNAL(sendInformationMovieUpd(QString, QString, QString, QString, QString, QString, QString, QByteArray, QByteArray, QList <QString>, QList <QString>, QList <QString>)),
+                        updateMovieWin, SLOT(acceptInformationMovieUpd(QString, QString, QString, QString, QString, QString, QString, QByteArray, QByteArray, QList <QString>, QList <QString>, QList <QString>)));
+                emit sendInformationMovieUpd(updTitle, updReleaseDate, updBoxOffice, updBudget, updMovieStudioName, updMovieDirectorID,
+                                             updMovieProtagonistID, updPoster, updScenario, listDirectorID, listProtagonistID, listStudioName);
+
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)),
+                        this, SLOT(preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)),
+                        this, SLOT(preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieSuccessfullyUpdated"))
+            {
+                updateMovieWin->hide();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Информация", "Фильм успешно обновлён");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestSizeNewPoster"))
+            {
+                if (doc.object().value("additionally").toString() == "scenario")
+                {
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"additionally\":\"scenario\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestNewPoster"))
+            {
+                socket->write(newPoster);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestSizeNewScenario"))
+            {
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestNewScenario"))
+            {
+                socket->write(newScenario);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieUnsuccessfullyUpdated"))
+            {
+                updateMovieWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
             else
             {
                 complexData = true;
@@ -550,6 +864,42 @@ void MainWindow::socketReady()
                 socketReady();
             }
         }
+        else if (updPosterArrives)
+        {
+            //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+            if ((updPosterArrives) && (requireSize == Data.size()))
+            {
+                updPoster = Data;
+
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestScenarioSize\"}");
+                socket->waitForBytesWritten(500);
+
+                updPosterArrives = false;
+            }
+            else
+            {
+                complexData = true;
+                socketReady();
+            }
+        }
+        else if (updScenarioArrives)
+        {
+            //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+            if (requireSize == Data.size())
+            {
+                updScenario = Data;
+
+                socket->write("{\"type\":\"updateMovie\",\"params\":\"requestAllID\"}");
+                socket->waitForBytesWritten(500);
+
+                updScenarioArrives = false;
+            }
+            else
+            {
+                complexData = true;
+                socketReady();
+            }
+        }
         else
         {
             QMessageBox::information(this, "Информация", "Ошибка с форматом передачи данных: " + docError.errorString());
@@ -582,7 +932,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     {
         int row = index.row();
         QString movieID = index.sibling(row, 0).data().toString();
-        socket->write("{\"type\":\"select\",\"params\":\"findLength\",\"value\":\"informationOnFilm\",\"id\":\"" + movieID.toUtf8() + "\"}");
+        socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"informationOnFilm\",\"id\":\"" + movieID.toUtf8() + "\"}");
         socket->waitForBytesWritten(500);
     }
     else
@@ -632,5 +982,19 @@ void MainWindow::on_action_6_triggered()
     addActorWin->show();
 
     connect(addActorWin,SIGNAL(sendActorSignal(QString, QString, QString, QPixmap)), this, SLOT(preparingAddActor(QString, QString, QString, QPixmap)));
+}
+
+
+void MainWindow::on_action_7_triggered()
+{
+    socket->write("{\"type\":\"selectAllActorID\",\"params\":\"findSize\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_8_triggered()
+{
+    socket->write("{\"type\":\"selectAllMovieID\",\"params\":\"findAllMovieID\"}");
+    socket->waitForBytesWritten(500);
 }
 
