@@ -19,6 +19,7 @@
 #include "addprotagonist.h"
 #include "updatemovie.h"
 #include "updatedirector.h"
+#include "updatestudio.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,6 +41,7 @@ public:
     addProtagonist* addProtagonistWin;
     updateMovie* updateMovieWin;
     updateDirector* updateDorectorWin;
+    updateStudio* updateStudioWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -94,6 +96,7 @@ public slots:
     void preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString);
     void prepareDirectorInformationForUpdate(QString);
     void preparingUpdDirector(QString, QString, QString, QString, QString);
+    void preparingUpdStudio(QString, QString);
 
 private slots:
     void on_action_triggered();
@@ -116,6 +119,8 @@ private slots:
 
     void on_action_9_triggered();
 
+    void on_action_10_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void sendStudioNames(QList <QString>);
@@ -125,6 +130,7 @@ signals:
     void sendInformationMovieUpd(QString, QString, QString, QString, QString, QString, QString, QByteArray, QByteArray, QList <QString>, QList <QString>, QList <QString>);
     void sendUpdateDirector(QList <QString>);
     void sendInformationDirectorUpd(QString, QString, QString);
+    void sendUpdateStudio(QList <QString>);
 
 private:
     Ui::MainWindow *ui;

@@ -84,6 +84,30 @@ bool socketThread::checkDirectorID(QString directorID)
     return false;
 }
 
+bool socketThread::checkStudioName(QString studioName)
+{
+    QList <QString> listStudioName;
+
+    QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+    if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+    {
+        while (queryAllStudioName->next())
+        {
+            listStudioName.append(queryAllStudioName->value(0).toString());
+        }
+    }
+
+    foreach( QString value, listStudioName )
+    {
+        if (value == studioName)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void socketThread::downloadInformationAboutFilms()
 {
     QSqlQuery* movies = new QSqlQuery(db);
@@ -922,7 +946,7 @@ void socketThread::mySocketReady()
 
             if(!query->exec())
             {
-                qDebug() << "Запрос на обновление фильма составлен неверно!";
+                qDebug() << "Запрос на обновление режиссёра составлен неверно!";
             }
             else
             {
@@ -936,6 +960,57 @@ void socketThread::mySocketReady()
                 {
                     qDebug()<<"Клиент " << socketDescriptor << " не смог обновить режиссёра с id = " << oldDirectorID;
                     socket->write("{\"type\":\"updateDirector\",\"params\":\"directorUnsuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+
+        }
+        else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "findAllStudioName"))
+        {
+            itog = "{\"type\":\"updateStudio\",\"params\":\"resultAllStudioName\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                {
+                    while (queryAllStudioName->next())
+                    {
+                        itog.append("{\"StudioName\":\""+queryAllStudioName->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "sendStudioInformation"))
+        {
+            newStudioName = doc.object().value("newDirectorID").toString();
+            oldStudioName = doc.object().value("oldDirectorID").toString();
+
+            QSqlQuery* query = new QSqlQuery(db);
+            query->prepare("UPDATE Studio SET StudioName=? WHERE StudioName=?");
+            query->bindValue(0, newStudioName);
+            query->bindValue(1, oldStudioName);
+
+            if(!query->exec())
+            {
+                qDebug() << "Запрос на обновление киностудии составлен неверно!";
+            }
+            else
+            {
+                if (checkStudioName(newStudioName))
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил киностудию с названием = " << oldStudioName;
+                    socket->write("{\"type\":\"updateStudio\",\"params\":\"studioSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить киностудию с названием = " << oldStudioName;
+                    socket->write("{\"type\":\"updateStudio\",\"params\":\"studioUnsuccessfullyUpdated\"}");
                     socket->waitForBytesWritten(500);
                 }
             }

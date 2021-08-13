@@ -60,9 +60,12 @@ public:
     QString newLastName;
     QString newDateOfBirth;
 
+    QString oldStudioName;
+
     bool checkMovieID(QString movieID);
     bool checkInformationOnFilm(QString movieID, QString title, QString releaseDate, QString boxOffice, QString budget);
     bool checkDirectorID(QString directorID);
+    bool checkStudioName(QString studioName);
 
 public slots:
     void mySocketReady();

@@ -353,6 +353,22 @@ void MainWindow::preparingUpdDirector(QString oldDirectorID, QString newDdirecto
     }
 }
 
+void MainWindow::preparingUpdStudio(QString oldStudioName, QString newStudioName)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateStudio\",\"params\":\"sendStudioInformation\""
+                      ",\"oldDirectorID\":\"" + oldStudioName.toUtf8() +
+                      "\",\"newDirectorID\":\"" + newStudioName.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -867,16 +883,53 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorSuccessfullyUpdated"))
             {
-                updateDorectorWin->hide();
+                updateDorectorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
-                QMessageBox::information(this, "Информация", "Режиссёр успешно обновлён");
+                QMessageBox::information(this, "Информация", "Режиссёр успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
             else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorUnsuccessfullyUpdated"))
             {
                 updateDorectorWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "resultAllStudioName"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listStudioName;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listStudioName.append(docArr.at(i).toObject().value("StudioName").toString());
+                }
+
+                updateStudioWin = new updateStudio();
+
+                connect(this,SIGNAL(sendUpdateStudio(QList <QString>)), updateStudioWin, SLOT(acceptStudioName(QList <QString>)));
+                emit sendUpdateStudio(listStudioName);
+
+                updateStudioWin->setWindowTitle("Изменить киностудию");
+                updateStudioWin->show();
+
+                connect(updateStudioWin,SIGNAL(sendUpdateStudio(QString, QString)), this, SLOT(preparingUpdStudio(QString, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "studioSuccessfullyUpdated"))
+            {
+                updateStudioWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Информация", "Киностудия успешно изменена");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "studioUnsuccessfullyUpdated"))
+            {
+                updateStudioWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
@@ -1096,6 +1149,13 @@ void MainWindow::on_action_8_triggered()
 void MainWindow::on_action_9_triggered()
 {
     socket->write("{\"type\":\"updateDirector\",\"params\":\"findAllDirectorID\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_10_triggered()
+{
+    socket->write("{\"type\":\"updateStudio\",\"params\":\"findAllStudioName\"}");
     socket->waitForBytesWritten(500);
 }
 

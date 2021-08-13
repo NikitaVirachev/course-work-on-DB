@@ -18,7 +18,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     updatedirector.cpp \
-    updatemovie.cpp
+    updatemovie.cpp \
+    updatestudio.cpp
 
 HEADERS += \
     addactor.h \
@@ -29,7 +30,8 @@ HEADERS += \
     login.h \
     mainwindow.h \
     updatedirector.h \
-    updatemovie.h
+    updatemovie.h \
+    updatestudio.h
 
 FORMS += \
     addactor.ui \
@@ -40,7 +42,8 @@ FORMS += \
     login.ui \
     mainwindow.ui \
     updatedirector.ui \
-    updatemovie.ui
+    updatemovie.ui \
+    updatestudio.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
