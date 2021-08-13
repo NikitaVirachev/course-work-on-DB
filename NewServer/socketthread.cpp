@@ -46,6 +46,20 @@ bool socketThread::checkMovieID(QString movieID)
     return false;
 }
 
+bool socketThread::checkInformationOnFilm(QString movieID, QString title, QString releaseDate, QString boxOffice, QString budget)
+{
+    QSqlQuery* query = new QSqlQuery(db);
+    if (query->exec("SELECT Title, ReleaseDate, BoxOffice, Budget FROM Movie WHERE MovieID = " + movieID))
+    {
+        query->first();
+        if ((query->value(0).toString() == title) && (query->value(1).toString() == releaseDate) && (query->value(2).toString() == boxOffice) && (query->value(3).toString() == budget))
+        {
+            return true;
+        }
+        return false;
+    }
+}
+
 void socketThread::downloadInformationAboutFilms()
 {
     QSqlQuery* movies = new QSqlQuery(db);
@@ -126,123 +140,144 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "selectSelectInformationOnFilm") && (doc.object().value("params").toString() == "informationOnFilm"))
         {
-            movieID = doc.object().value("id").toString();
-
-            qDebug()<< "Клиент " << socketDescriptor<<" запрашивает информацию о фильме № " << movieID;
-
-            itog = "{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"resultSelectInformationOnFilm\",\"resultDirector\":[";
-
-            if (db.isOpen())
+            if (checkMovieID(doc.object().value("id").toString()))
             {
-                QSqlQuery* queryDirector = new QSqlQuery(db);
-                if (queryDirector->exec("SELECT DirectorID FROM Movie WHERE MovieID = " + movieID))
+                if (checkInformationOnFilm(doc.object().value("id").toString(), doc.object().value("title").toString(),
+                                           doc.object().value("releaseDate").toString(), doc.object().value("boxOffice").toString(),
+                                           doc.object().value("budget").toString()))
                 {
-                    queryDirector->first();
-                    QString directorID = queryDirector->value(0).toString();
-                    QSqlQuery* director = new QSqlQuery(db);
+                    movieID = doc.object().value("id").toString();
 
-                    if (director->exec("SELECT DirectorID, FirstName, LastName, DateOfBirth FROM Director WHERE DirectorID = " + directorID))
+                    qDebug()<< "Клиент " << socketDescriptor<<" запрашивает информацию о фильме № " << movieID;
+
+                    itog = "{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"resultSelectInformationOnFilm\",\"resultDirector\":[";
+
+                    if (db.isOpen())
                     {
-                        while (director->next())
+                        QSqlQuery* queryDirector = new QSqlQuery(db);
+                        if (queryDirector->exec("SELECT DirectorID FROM Movie WHERE MovieID = " + movieID))
                         {
+                            queryDirector->first();
+                            QString directorID = queryDirector->value(0).toString();
+                            QSqlQuery* director = new QSqlQuery(db);
 
-                            itog.append("{\"directorID\":\""+director->value(0).toString()+
-                                        "\",\"firstName\":\""+director->value(1).toString()+
-                                        "\",\"lastName\":\""+director->value(2).toString()+
-                                        "\",\"dateOfBirth\":\""+director->value(3).toString()+
-                                        "\"},");
+                            if (director->exec("SELECT DirectorID, FirstName, LastName, DateOfBirth FROM Director WHERE DirectorID = " + directorID))
+                            {
+                                while (director->next())
+                                {
+
+                                    itog.append("{\"directorID\":\""+director->value(0).toString()+
+                                                "\",\"firstName\":\""+director->value(1).toString()+
+                                                "\",\"lastName\":\""+director->value(2).toString()+
+                                                "\",\"dateOfBirth\":\""+director->value(3).toString()+
+                                                "\"},");
+                                }
+                                itog.remove(itog.length()-1,1);
+                                itog.append("],\"resultStudioName\":\"");
+                            }
+                            else
+                            {
+                                qDebug()<<"Запрос на режисёра не выполнен";
+                            }
                         }
-                        itog.remove(itog.length()-1,1);
-                        itog.append("],\"resultStudioName\":\"");
-                    }
-                    else
-                    {
-                        qDebug()<<"Запрос на режисёра не выполнен";
-                    }
-                }
-                else
-                {
-                    //ошибка
-                    qDebug() << "Ошибка в получении id режисёра: " << queryDirector->lastError().text();
-                }
-
-                QSqlQuery* queryStudioName = new QSqlQuery(db);
-                if (queryStudioName->exec("SELECT StudioName FROM Movie WHERE MovieID = " + movieID))
-                {
-                    queryStudioName->first();
-                    QString studioName = queryStudioName->value(0).toString();
-                    itog.append(studioName + "\",\"resultProtagonist\":[");
-                }
-                else
-                {
-                    //ошибка
-                    qDebug() << "Ошибка в получении названия студии: " << queryStudioName->lastError().text();
-                }
-
-                QSqlQuery* queryProtagonist = new QSqlQuery(db);
-                if (queryProtagonist->exec("SELECT ProtagonistID FROM Movie WHERE MovieID = " + movieID))
-                {
-                    queryProtagonist->first();
-                    QString protagonistID = queryProtagonist->value(0).toString();
-                    QSqlQuery* protagonist = new QSqlQuery(db);
-                    if (protagonist->exec("SELECT Name FROM Protagonist WHERE ProtagonistID = " + protagonistID))
-                    {
-                        while (protagonist->next())
+                        else
                         {
-
-                            itog.append("{\"protagonistID\":\""+protagonistID+
-                                        "\",\"name\":\""+protagonist->value(0).toString()+
-                                        "\"},");
+                            //ошибка
+                            qDebug() << "Ошибка в получении id режисёра: " << queryDirector->lastError().text();
                         }
-                        itog.remove(itog.length()-1,1);
-                        itog.append("],\"resultActor\":[");
-                    }
-                    else
-                    {
-                        qDebug()<<"Запрос на главного героя не выполнен";
-                    }
-                }
-                else
-                {
-                    //ошибка
-                    qDebug() << "Ошибка в получении id главного героя: " << queryProtagonist->lastError().text();
-                }
 
-
-                QSqlQuery* queryActor = new QSqlQuery(db);
-                if (queryActor->exec("SELECT ActorID FROM Protagonist JOIN Movie ON Protagonist.ProtagonistID = Movie.ProtagonistID WHERE MovieID = " + movieID))
-                {
-                    queryActor->first();
-                    QString actorID = queryActor->value(0).toString();
-                    QSqlQuery* actor = new QSqlQuery(db);
-                    if (actor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor WHERE ActorID = " + actorID))
-                    {
-                        while (actor->next())
+                        QSqlQuery* queryStudioName = new QSqlQuery(db);
+                        if (queryStudioName->exec("SELECT StudioName FROM Movie WHERE MovieID = " + movieID))
                         {
-
-                            itog.append("{\"actorID\":\""+actor->value(0).toString()+
-                                        "\",\"firstName\":\""+actor->value(1).toString()+
-                                        "\",\"lastName\":\""+actor->value(2).toString()+
-                                        "\",\"dateOfBirth\":\""+actor->value(3).toString()+
-                                        "\"},");
+                            queryStudioName->first();
+                            QString studioName = queryStudioName->value(0).toString();
+                            itog.append(studioName + "\",\"resultProtagonist\":[");
                         }
-                        itog.remove(itog.length()-1,1);
+                        else
+                        {
+                            //ошибка
+                            qDebug() << "Ошибка в получении названия студии: " << queryStudioName->lastError().text();
+                        }
+
+                        QSqlQuery* queryProtagonist = new QSqlQuery(db);
+                        if (queryProtagonist->exec("SELECT ProtagonistID FROM Movie WHERE MovieID = " + movieID))
+                        {
+                            queryProtagonist->first();
+                            QString protagonistID = queryProtagonist->value(0).toString();
+                            QSqlQuery* protagonist = new QSqlQuery(db);
+                            if (protagonist->exec("SELECT Name FROM Protagonist WHERE ProtagonistID = " + protagonistID))
+                            {
+                                while (protagonist->next())
+                                {
+
+                                    itog.append("{\"protagonistID\":\""+protagonistID+
+                                                "\",\"name\":\""+protagonist->value(0).toString()+
+                                                "\"},");
+                                }
+                                itog.remove(itog.length()-1,1);
+                                itog.append("],\"resultActor\":[");
+                            }
+                            else
+                            {
+                                qDebug()<<"Запрос на главного героя не выполнен";
+                            }
+                        }
+                        else
+                        {
+                            //ошибка
+                            qDebug() << "Ошибка в получении id главного героя: " << queryProtagonist->lastError().text();
+                        }
+
+
+                        QSqlQuery* queryActor = new QSqlQuery(db);
+                        if (queryActor->exec("SELECT ActorID FROM Protagonist JOIN Movie ON Protagonist.ProtagonistID = Movie.ProtagonistID WHERE MovieID = " + movieID))
+                        {
+                            queryActor->first();
+                            QString actorID = queryActor->value(0).toString();
+                            QSqlQuery* actor = new QSqlQuery(db);
+                            if (actor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor WHERE ActorID = " + actorID))
+                            {
+                                while (actor->next())
+                                {
+
+                                    itog.append("{\"actorID\":\""+actor->value(0).toString()+
+                                                "\",\"firstName\":\""+actor->value(1).toString()+
+                                                "\",\"lastName\":\""+actor->value(2).toString()+
+                                                "\",\"dateOfBirth\":\""+actor->value(3).toString()+
+                                                "\"},");
+                                }
+                                itog.remove(itog.length()-1,1);
+                            }
+                            else
+                            {
+                                qDebug()<<"Запрос на актёра не выполнен";
+                            }
+                        }
+                        else
+                        {
+                            //ошибка
+                            qDebug() << "Ошибка в получении id главного героя: " << queryActor->lastError().text();
+                        }
                     }
-                    else
-                    {
-                        qDebug()<<"Запрос на актёра не выполнен";
-                    }
+                    itog.append("]}");
+
+                    socket->write(itog);
+                    socket->waitForBytesWritten(500);
                 }
                 else
                 {
-                    //ошибка
-                    qDebug() << "Ошибка в получении id главного героя: " << queryActor->lastError().text();
+                    qDebug()<<"Клиент " << socketDescriptor << " запрашивает информацию о несуществующем фильме с id = " << doc.object().value("id").toString();
+                    socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"fail\"}");
+                    socket->waitForBytesWritten(500);
                 }
             }
-            itog.append("]}");
+            else
+            {
+                qDebug()<<"Клиент " << socketDescriptor << " запрашивает информацию о несуществующем фильме с id = " << doc.object().value("id").toString();
+                socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"fail\"}");
+                socket->waitForBytesWritten(500);
+            }
 
-            socket->write(itog);
-            socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "select") && (doc.object().value("value").toString() == "informationOnFilm") && (doc.object().value("params").toString() == "requestItog"))
         {

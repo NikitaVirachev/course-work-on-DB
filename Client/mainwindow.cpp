@@ -455,6 +455,14 @@ void MainWindow::socketReady()
                 socket->waitForBytesWritten(500);
 
             }
+            else if ((doc.object().value("type").toString() == "selectSelectInformationOnFilm") && (doc.object().value("params").toString() == "fail"))
+            {
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
             else if ((doc.object().value("type").toString() == "select") && (doc.object().value("params").toString() == "size") && (doc.object().value("value").toString() == "informationOnFilm"))
             {
                 requireSize = doc.object().value("length").toInt();
@@ -932,7 +940,14 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     {
         int row = index.row();
         QString movieID = index.sibling(row, 0).data().toString();
-        socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"informationOnFilm\",\"id\":\"" + movieID.toUtf8() + "\"}");
+        QString title = index.sibling(row, 1).data().toString();
+        QString releaseDate = index.sibling(row, 2).data().toString();
+        QString boxOffice = index.sibling(row, 3).data().toString();
+        QString budget = index.sibling(row, 4).data().toString();
+
+        socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"informationOnFilm\",\"id\":\"" + movieID.toUtf8() + "\""
+                      ",\"title\":\"" + title.toUtf8() + "\",\"releaseDate\":\"" + releaseDate.toUtf8() + "\""
+                      ",\"boxOffice\":\"" + boxOffice.toUtf8() + "\",\"budget\":\"" + budget.toUtf8() + "\"}");
         socket->waitForBytesWritten(500);
     }
     else

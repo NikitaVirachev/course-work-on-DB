@@ -54,7 +54,8 @@ public:
     QString newLastNameActor;
     QString newDateOfBirthActor;
 
-    bool checkMovieID();
+    bool checkMovieID(QString movieID);
+    bool checkInformationOnFilm(QString movieID, QString title, QString releaseDate, QString boxOffice, QString budget);
 
 public slots:
     void mySocketReady();
