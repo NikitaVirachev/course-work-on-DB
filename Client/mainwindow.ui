@@ -303,7 +303,7 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Добавить</string>
+     <string>Добавление</string>
     </property>
     <addaction name="action_2"/>
     <addaction name="action_4"/>
@@ -316,6 +316,7 @@
      <string>Изменение</string>
     </property>
     <addaction name="action_8"/>
+    <addaction name="action_9"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -360,6 +361,11 @@
   <action name="action_8">
    <property name="text">
     <string>Изменить фильм</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>Изменить режиссёра</string>
    </property>
   </action>
  </widget>

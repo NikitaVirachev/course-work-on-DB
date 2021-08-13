@@ -17,6 +17,7 @@ SOURCES += \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
+    updatedirector.cpp \
     updatemovie.cpp
 
 HEADERS += \
@@ -27,6 +28,7 @@ HEADERS += \
     addstudio.h \
     login.h \
     mainwindow.h \
+    updatedirector.h \
     updatemovie.h
 
 FORMS += \
@@ -37,6 +39,7 @@ FORMS += \
     addstudio.ui \
     login.ui \
     mainwindow.ui \
+    updatedirector.ui \
     updatemovie.ui
 
 # Default rules for deployment.

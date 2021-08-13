@@ -60,6 +60,30 @@ bool socketThread::checkInformationOnFilm(QString movieID, QString title, QStrin
     }
 }
 
+bool socketThread::checkDirectorID(QString directorID)
+{
+    QList <QString> listDirectorID;
+
+    QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
+    if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
+    {
+        while (queryAllDirectorID->next())
+        {
+            listDirectorID.append(queryAllDirectorID->value(0).toString());
+        }
+    }
+
+    foreach( QString value, listDirectorID )
+    {
+        if (value == directorID)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void socketThread::downloadInformationAboutFilms()
 {
     QSqlQuery* movies = new QSqlQuery(db);
@@ -832,6 +856,90 @@ void socketThread::mySocketReady()
             newScenarioArrives = true;
             socket->write("{\"type\":\"updateMovie\",\"params\":\"requestNewScenario\"}");
             socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "findAllDirectorID"))
+        {
+            itog = "{\"type\":\"updateDirector\",\"params\":\"resultAllDirectorID\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
+                if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
+                {
+                    while (queryAllDirectorID->next())
+                    {
+                        itog.append("{\"DirectorID\":\""+queryAllDirectorID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "findDirectorInformation"))
+        {
+            directorID = doc.object().value("id").toString();
+
+            itog = "{\"type\":\"updateDirector\",\"params\":\"directorInformation\",";
+
+            QSqlQuery* director = new QSqlQuery(db);
+            if (director->exec("SELECT FirstName, LastName, DateOfBirth FROM Director WHERE DirectorID = " + directorID))
+            {
+                director->first();
+                itog.append("\"firstName\":\""+director->value(0).toString()+
+                            "\",\"lastName\":\""+director->value(1).toString()+
+                            "\",\"dateOfBirth\":\""+director->value(2).toString()+
+                            "\"");
+            }
+            else
+            {
+                qDebug()<<"Запрос на фильмы не выполнен";
+            }
+
+            itog.append("}");
+
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+
+            delete director;
+        }
+        else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "sendDirectorInformation"))
+        {
+            newDirectorID = doc.object().value("newDirectorID").toString();
+            oldDirectorID = doc.object().value("oldDirectorID").toString();
+            newFirstName = doc.object().value("firstName").toString();
+            newLastName = doc.object().value("lastName").toString();
+            newDateOfBirth = doc.object().value("dateOfBirth").toString();
+
+            QSqlQuery* query = new QSqlQuery(db);
+            query->prepare("UPDATE Director SET DirectorID=?, FirstName=?, LastName=?, DateOfBirth=? WHERE DirectorID=?");
+            query->bindValue(0, newDirectorID);
+            query->bindValue(1, newFirstName);
+            query->bindValue(2, newLastName);
+            query->bindValue(3, newDateOfBirth);
+            query->bindValue(4, oldDirectorID);
+
+            if(!query->exec())
+            {
+                qDebug() << "Запрос на обновление фильма составлен неверно!";
+            }
+            else
+            {
+                if (checkDirectorID(newDirectorID))
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил режиссёра с id = " << oldDirectorID;
+                    socket->write("{\"type\":\"updateDirector\",\"params\":\"directorSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить режиссёра с id = " << oldDirectorID;
+                    socket->write("{\"type\":\"updateDirector\",\"params\":\"directorUnsuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+
         }
         else
         {

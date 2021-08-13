@@ -321,6 +321,38 @@ void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString newMovieID
     }
 }
 
+void MainWindow::prepareDirectorInformationForUpdate(QString directorID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateDirector\",\"params\":\"findDirectorInformation\",\"id\":\"" + directorID.toUtf8() + "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdDirector(QString oldDirectorID, QString newDdirectorID, QString firstName, QString lastName, QString dateOfBirth)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateDirector\",\"params\":\"sendDirectorInformation\""
+                      ",\"oldDirectorID\":\"" + oldDirectorID.toUtf8() +
+                      "\",\"newDirectorID\":\"" + newDdirectorID.toUtf8() +
+                      "\",\"firstName\":\"" + firstName.toUtf8() +
+                      "\",\"lastName\":\"" + lastName.toUtf8() +
+                      "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -804,6 +836,53 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "resultAllDirectorID"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listDirectorID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listDirectorID.append(docArr.at(i).toObject().value("DirectorID").toString());
+                }
+
+                updateDorectorWin = new updateDirector();
+
+                connect(this,SIGNAL(sendUpdateDirector(QList <QString>)), updateDorectorWin, SLOT(acceptDirectorID(QList <QString>)));
+                emit sendUpdateDirector(listDirectorID);
+
+                updateDorectorWin->setWindowTitle("Изменить режиссёра");
+                updateDorectorWin->show();
+
+                connect(updateDorectorWin,SIGNAL(sendDirectorIDSignalUpd(QString)), this, SLOT(prepareDirectorInformationForUpdate(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorInformation"))
+            {
+                connect(this,SIGNAL(sendInformationDirectorUpd(QString, QString, QString)),
+                        updateDorectorWin, SLOT(acceptInformationDirectorUpd(QString, QString, QString)));
+                emit sendInformationDirectorUpd(doc.object().value("firstName").toString(), doc.object().value("lastName").toString(),
+                                                doc.object().value("dateOfBirth").toString());
+
+                connect(updateDorectorWin,SIGNAL(sendUpdateDirector(QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdDirector(QString, QString, QString, QString, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorSuccessfullyUpdated"))
+            {
+                updateDorectorWin->hide();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Информация", "Режиссёр успешно обновлён");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorUnsuccessfullyUpdated"))
+            {
+                updateDorectorWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
             else
             {
                 complexData = true;
@@ -1010,6 +1089,13 @@ void MainWindow::on_action_7_triggered()
 void MainWindow::on_action_8_triggered()
 {
     socket->write("{\"type\":\"selectAllMovieID\",\"params\":\"findAllMovieID\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_9_triggered()
+{
+    socket->write("{\"type\":\"updateDirector\",\"params\":\"findAllDirectorID\"}");
     socket->waitForBytesWritten(500);
 }
 
