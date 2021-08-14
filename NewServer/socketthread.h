@@ -31,6 +31,7 @@ public:
     QByteArray baScenario;
     QString movieID;
     QString directorID;
+    QString actorID;
 
     int requireSize;
     bool complexData = false;
@@ -40,6 +41,7 @@ public:
     bool newPosterArrives = false;
     bool newScenarioArrives = false;
     bool posterAndScenario = false;
+    bool newActorPortraitArrives = false;
 
     QString newMovieID;
     QString oldMovieID;
@@ -62,10 +64,14 @@ public:
 
     QString oldStudioName;
 
+    QString newActorID;
+    QString oldActorID;
+
     bool checkMovieID(QString movieID);
     bool checkInformationOnFilm(QString movieID, QString title, QString releaseDate, QString boxOffice, QString budget);
     bool checkDirectorID(QString directorID);
     bool checkStudioName(QString studioName);
+    bool checkActorID(QString actorID);
 
 public slots:
     void mySocketReady();

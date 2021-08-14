@@ -369,6 +369,61 @@ void MainWindow::preparingUpdStudio(QString oldStudioName, QString newStudioName
     }
 }
 
+void MainWindow::prepareActorInformationForUpdate(QString actorID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateActor\",\"params\":\"findActorInformation\",\"id\":\"" + actorID.toUtf8() + "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString newActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
+{
+    QBuffer buffer(&newActorPortrait);
+    buffer.open(QIODevice::WriteOnly);
+    actorPortrait.save(&buffer, "PNG");
+
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateActor\",\"params\":\"sendActorInformation\",\"additionally\":\"actorPortrait\""
+                      ",\"oldActorID\":\"" + oldActorID.toUtf8() +
+                      "\",\"newActorID\":\"" + newActorID.toUtf8() +
+                      "\",\"firstName\":\"" + firstName.toUtf8() +
+                      "\",\"lastName\":\"" + lastName.toUtf8() +
+                      "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdActorWithout(QString oldActorID, QString newActorID, QString firstName, QString lastName, QString dateOfBirth)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateActor\",\"params\":\"sendActorInformation\",\"additionally\":\"basicOnly\""
+                      ",\"oldActorID\":\"" + oldActorID.toUtf8() +
+                      "\",\"newActorID\":\"" + newActorID.toUtf8() +
+                      "\",\"firstName\":\"" + firstName.toUtf8() +
+                      "\",\"lastName\":\"" + lastName.toUtf8() +
+                      "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -936,6 +991,69 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "resultAllActorID"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listActorID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listActorID.append(docArr.at(i).toObject().value("ActorID").toString());
+                }
+
+                updateActorWin = new updateActor();
+
+                connect(this,SIGNAL(sendUpdateActor(QList <QString>)), updateActorWin, SLOT(acceptActorID(QList <QString>)));
+                emit sendUpdateActor(listActorID);
+
+                updateActorWin->setWindowTitle("Изменить актёра");
+                updateActorWin->show();
+
+                connect(updateActorWin,SIGNAL(sendActorIDSignalUpd(QString)), this, SLOT(prepareActorInformationForUpdate(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "actorInformation"))
+            {
+                updActorFirstName = doc.object().value("firstName").toString();
+                updActorLastName = doc.object().value("lastName").toString();
+                updActorDateOfBirth = doc.object().value("dateOfBirth").toString();
+
+                socket->write("{\"type\":\"updateActor\",\"params\":\"requestPortraitSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "sizePortrait"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                updPortraitArrives = true;
+                socket->write("{\"type\":\"updateActor\",\"params\":\"selectPortrait\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "requestSizeNewActorPortrait"))
+            {
+                socket->write("{\"type\":\"updateActor\",\"params\":\"sizeNewActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "requestNewActorPortrait"))
+            {
+                socket->write(newActorPortrait);
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "actorSuccessfullyUpdated"))
+            {
+                updateActorWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Информация", "Актёр успешно изменён");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "actorUnsuccessfullyUpdated"))
+            {
+                updateActorWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
             else
             {
                 complexData = true;
@@ -1033,6 +1151,28 @@ void MainWindow::socketReady()
                 socket->waitForBytesWritten(500);
 
                 updScenarioArrives = false;
+            }
+            else
+            {
+                complexData = true;
+                socketReady();
+            }
+        }
+        else if (updPortraitArrives)
+        {
+            //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+            if (requireSize == Data.size())
+            {
+                connect(this,SIGNAL(sendInformationActorUpd(QString, QString, QString, QByteArray)),
+                        updateActorWin, SLOT(acceptInformationActorUpd(QString, QString, QString, QByteArray)));
+                emit sendInformationActorUpd(updActorFirstName, updActorLastName, updActorDateOfBirth, Data);
+
+                updPortraitArrives = false;
+
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithPortrait(QString, QString, QString, QString, QString, QPixmap)),
+                        this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QString, QPixmap)));
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString, QString)));
             }
             else
             {
@@ -1156,6 +1296,13 @@ void MainWindow::on_action_9_triggered()
 void MainWindow::on_action_10_triggered()
 {
     socket->write("{\"type\":\"updateStudio\",\"params\":\"findAllStudioName\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_11_triggered()
+{
+    socket->write("{\"type\":\"updateActor\",\"params\":\"findAllActorID\"}");
     socket->waitForBytesWritten(500);
 }
 

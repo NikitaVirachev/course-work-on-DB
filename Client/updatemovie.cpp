@@ -165,17 +165,21 @@ void updateMovie::on_pushButton_3_clicked()
             sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                       ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster,
                                       ui->textEdit->toPlainText());
+            posterFlag = false;
+            scenarioFlag = false;
         }
         else if (posterFlag)
         {
             sendUpdateMovieWithPoster(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                       ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster);
+            posterFlag = false;
         }
         else if (scenarioFlag)
         {
             sendUpdateMovieWithScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                         ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(),
                                         ui->textEdit->toPlainText());
+            scenarioFlag = false;
         }
         else
         {

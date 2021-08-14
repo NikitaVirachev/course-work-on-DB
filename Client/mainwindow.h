@@ -20,6 +20,7 @@
 #include "updatemovie.h"
 #include "updatedirector.h"
 #include "updatestudio.h"
+#include "updateactor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,6 +43,7 @@ public:
     updateMovie* updateMovieWin;
     updateDirector* updateDorectorWin;
     updateStudio* updateStudioWin;
+    updateActor* updateActorWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -60,6 +62,7 @@ public:
     bool scenarioArrives = false;
     bool updPosterArrives = false;
     bool updScenarioArrives = false;
+    bool updPortraitArrives = false;
 
     QByteArray newPoster;
     QByteArray newScenario;
@@ -74,6 +77,9 @@ public:
     QString updMovieProtagonistID;
     QByteArray updPoster;
     QByteArray updScenario;
+    QString updActorFirstName;
+    QString updActorLastName;
+    QString updActorDateOfBirth;
 
     QJsonDocument doc;
     QJsonParseError docError;
@@ -97,6 +103,9 @@ public slots:
     void prepareDirectorInformationForUpdate(QString);
     void preparingUpdDirector(QString, QString, QString, QString, QString);
     void preparingUpdStudio(QString, QString);
+    void prepareActorInformationForUpdate(QString);
+    void preparingUpdActorWithPortrait(QString, QString, QString, QString, QString, QPixmap);
+    void preparingUpdActorWithout(QString, QString, QString, QString, QString);
 
 private slots:
     void on_action_triggered();
@@ -121,6 +130,8 @@ private slots:
 
     void on_action_10_triggered();
 
+    void on_action_11_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void sendStudioNames(QList <QString>);
@@ -131,6 +142,8 @@ signals:
     void sendUpdateDirector(QList <QString>);
     void sendInformationDirectorUpd(QString, QString, QString);
     void sendUpdateStudio(QList <QString>);
+    void sendUpdateActor(QList <QString>);
+    void sendInformationActorUpd(QString, QString, QString, QByteArray);
 
 private:
     Ui::MainWindow *ui;
