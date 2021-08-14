@@ -319,6 +319,7 @@
     <addaction name="action_9"/>
     <addaction name="action_10"/>
     <addaction name="action_11"/>
+    <addaction name="action_12"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -378,6 +379,11 @@
   <action name="action_11">
    <property name="text">
     <string>Изменить актёра</string>
+   </property>
+  </action>
+  <action name="action_12">
+   <property name="text">
+    <string>Изменить главного героя</string>
    </property>
   </action>
  </widget>

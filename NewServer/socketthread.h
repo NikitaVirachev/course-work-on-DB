@@ -32,6 +32,7 @@ public:
     QString movieID;
     QString directorID;
     QString actorID;
+    QString protagonistID;
 
     int requireSize;
     bool complexData = false;
@@ -72,6 +73,7 @@ public:
     bool checkDirectorID(QString directorID);
     bool checkStudioName(QString studioName);
     bool checkActorID(QString actorID);
+    bool checkProtagonistID(QString protagonistID);
 
 public slots:
     void mySocketReady();

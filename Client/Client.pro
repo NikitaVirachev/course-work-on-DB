@@ -20,6 +20,7 @@ SOURCES += \
     updateactor.cpp \
     updatedirector.cpp \
     updatemovie.cpp \
+    updateprotagonist.cpp \
     updatestudio.cpp
 
 HEADERS += \
@@ -33,6 +34,7 @@ HEADERS += \
     updateactor.h \
     updatedirector.h \
     updatemovie.h \
+    updateprotagonist.h \
     updatestudio.h
 
 FORMS += \
@@ -46,6 +48,7 @@ FORMS += \
     updateactor.ui \
     updatedirector.ui \
     updatemovie.ui \
+    updateprotagonist.ui \
     updatestudio.ui
 
 # Default rules for deployment.

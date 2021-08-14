@@ -132,6 +132,30 @@ bool socketThread::checkActorID(QString actorID)
     return false;
 }
 
+bool socketThread::checkProtagonistID(QString protagonistID)
+{
+    QList <QString> listProtagonistID;
+
+    QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
+    if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
+    {
+        while (queryAllProtagonistID->next())
+        {
+            listProtagonistID.append(queryAllProtagonistID->value(0).toString());
+        }
+    }
+
+    foreach( QString value, listProtagonistID )
+    {
+        if (value == protagonistID)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void socketThread::downloadInformationAboutFilms()
 {
     QSqlQuery* movies = new QSqlQuery(db);
@@ -1160,6 +1184,94 @@ void socketThread::mySocketReady()
 
             socket->write("{\"type\":\"updateActor\",\"params\":\"requestNewActorPortrait\"}");
             socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "findAllProtagonistID"))
+        {
+            itog = "{\"type\":\"updateProtagonist\",\"params\":\"resultAllProtagonistID\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
+                if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
+                {
+                    while (queryAllProtagonistID->next())
+                    {
+                        itog.append("{\"ProtagonistID\":\""+queryAllProtagonistID->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "findProtagonistInformation"))
+        {
+            protagonistID = doc.object().value("id").toString();
+
+            itog = "{\"type\":\"updateProtagonist\",\"params\":\"protagonistInformation\",";
+
+            QSqlQuery* protagonist = new QSqlQuery(db);
+            if (protagonist->exec("SELECT Name, ActorID FROM Protagonist WHERE ProtagonistID = " + protagonistID))
+            {
+                protagonist->first();
+                itog.append("\"name\":\""+protagonist->value(0).toString()+
+                            "\",\"actorID\":\""+protagonist->value(1).toString()+
+                            "\"");
+            }
+            else
+            {
+                qDebug()<<"Запрос на фильмы не выполнен";
+            }
+
+            itog.append(",\"allActorID\":[");
+            QSqlQuery* queryAllActorID = new QSqlQuery(db);
+            if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
+            {
+                while (queryAllActorID->next())
+                {
+                    itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            itog.append("]}");
+
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+
+            delete protagonist;
+        }
+        else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "sendProtagonisInformation"))
+        {
+            QSqlQuery* query = new QSqlQuery(db);
+            query->prepare("UPDATE Protagonist SET ProtagonistID=?, Name=?, ActorID=? WHERE ProtagonistID=?");
+            query->bindValue(0, doc.object().value("newProtagonistID").toString());
+            query->bindValue(1, doc.object().value("name").toString());
+            query->bindValue(2, doc.object().value("actorID").toString());
+            query->bindValue(3, doc.object().value("oldAProtagonistID").toString());
+
+            if(!query->exec())
+            {
+                qDebug() << "Запрос на обновление киностудии составлен неверно!";
+            }
+            else
+            {
+                if (checkProtagonistID(doc.object().value("newProtagonistID").toString()))
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил главного героя с id = " << doc.object().value("oldAProtagonistID").toString();
+                    socket->write("{\"type\":\"updateProtagonist\",\"params\":\"protagonistSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить главного героя с id = " << doc.object().value("oldAProtagonistID").toString();
+                    socket->write("{\"type\":\"updateProtagonist\",\"params\":\"protagonistUnsuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+
         }
         else
         {

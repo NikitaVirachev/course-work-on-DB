@@ -424,6 +424,37 @@ void MainWindow::preparingUpdActorWithout(QString oldActorID, QString newActorID
     }
 }
 
+void MainWindow::prepareProtagonistInformationForUpdate(QString protagonistID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateProtagonist\",\"params\":\"findProtagonistInformation\",\"id\":\"" + protagonistID.toUtf8() + "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
+void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString newProtagonistID, QString name, QString actorID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"updateProtagonist\",\"params\":\"sendProtagonisInformation\""
+                      ",\"oldAProtagonistID\":\"" + oldAProtagonistID.toUtf8() +
+                      "\",\"newProtagonistID\":\"" + newProtagonistID.toUtf8() +
+                      "\",\"name\":\"" + name.toUtf8() +
+                      "\",\"actorID\":\"" + actorID.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1054,6 +1085,59 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "resultAllProtagonistID"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+                QList <QString> listProtagonistID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listProtagonistID.append(docArr.at(i).toObject().value("ProtagonistID").toString());
+                }
+
+                updateProtagonistWin = new updateProtagonist();
+
+                connect(this,SIGNAL(sendUpdateProtagonist(QList <QString>)), updateProtagonistWin, SLOT(acceptProtagonistID(QList <QString>)));
+                emit sendUpdateProtagonist(listProtagonistID);
+
+                updateProtagonistWin->setWindowTitle("Изменить главного героя");
+                updateProtagonistWin->show();
+
+                connect(updateProtagonistWin,SIGNAL(sendProtagonistIDSignalUpd(QString)), this, SLOT(prepareProtagonistInformationForUpdate(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "protagonistInformation"))
+            {
+                QJsonArray docArr = doc.object().value("allActorID").toArray();
+                QList <QString> listActorID;
+                for (int i = 0; i < docArr.count(); ++i)
+                {
+                    listActorID.append(docArr.at(i).toObject().value("ActorID").toString());
+                }
+
+                connect(this,SIGNAL(sendInformationProtagonistUpd(QString, QString, QList <QString>)),
+                        updateProtagonistWin, SLOT(acceptInformationProtagonistUpd(QString, QString, QList <QString>)));
+                emit sendInformationProtagonistUpd(doc.object().value("name").toString(), doc.object().value("actorID").toString(), listActorID);
+
+                connect(updateProtagonistWin,SIGNAL(sendUpdateProtagonist(QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdProtagonist(QString, QString, QString, QString)));
+            }
+            else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "protagonistSuccessfullyUpdated"))
+            {
+                updateProtagonistWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Информация", "Главный герой успешно изменён");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "protagonistUnsuccessfullyUpdated"))
+            {
+                updateProtagonistWin->close();
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
             else
             {
                 complexData = true;
@@ -1303,6 +1387,13 @@ void MainWindow::on_action_10_triggered()
 void MainWindow::on_action_11_triggered()
 {
     socket->write("{\"type\":\"updateActor\",\"params\":\"findAllActorID\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_12_triggered()
+{
+    socket->write("{\"type\":\"updateProtagonist\",\"params\":\"findAllProtagonistID\"}");
     socket->waitForBytesWritten(500);
 }
 
