@@ -40,12 +40,17 @@ void updateProtagonist::acceptInformationProtagonistUpd(QString name, QString ac
     for (int i = 0; i < listActorID.length(); ++i)
     {
         ui->comboBox_2->addItem(listActorID[i]);
+        //qDebug() << "listActorID[i]: " << listActorID[i] << ", actorID: " << actorID;
         if (listActorID[i] == actorID)
         {
             ui->comboBox_2->setCurrentIndex(i);
         }
     }
     ui->comboBox_2->addItem(" ");
+    if (actorID == "0")
+    {
+        ui->comboBox_2->setCurrentIndex(listActorID.length()+1);
+    }
 
     ui->lineEdit->setText(name);
 

@@ -1268,7 +1268,14 @@ void socketThread::mySocketReady()
             query->prepare("UPDATE Protagonist SET ProtagonistID=?, Name=?, ActorID=? WHERE ProtagonistID=?");
             query->bindValue(0, doc.object().value("newProtagonistID").toString());
             query->bindValue(1, doc.object().value("name").toString());
-            query->bindValue(2, doc.object().value("actorID").toString());
+            if (doc.object().value("actorID").toString() == " ")
+            {
+                query->bindValue(2, QVariant (QVariant :: String));
+            }
+            else
+            {
+                query->bindValue(2, doc.object().value("actorID").toString());
+            }
             query->bindValue(3, doc.object().value("oldAProtagonistID").toString());
 
             if(!query->exec())
