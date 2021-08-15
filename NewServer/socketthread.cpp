@@ -681,30 +681,23 @@ void socketThread::mySocketReady()
             socket->write("{\"type\":\"addNewActor\",\"params\":\"requestNewActorPortrait\"}");
             socket->waitForBytesWritten(500);
         }
-        else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "findSize"))
+        else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "selectAllActorID"))
         {
-            itog = "{\"type\":\"selectAllActorID\",\"params\":\"itog\",\"result\":[";
-            if (db.isOpen())
+            itog = "{\"type\":\"addNewProtagonist\",\"params\":\"allActorID\",\"result\":[";
+
+            QSqlQuery* queryAllActorID = new QSqlQuery(db);
+            if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
             {
-                QSqlQuery* queryAllActorID = new QSqlQuery(db);
-                if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
+                while (queryAllActorID->next())
                 {
-                    while (queryAllActorID->next())
-                    {
-                        itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
+
             itog.append("]}");
-            socket->write("{\"type\":\"selectAllActorID\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
-            socket->waitForBytesWritten(500);
-        }
-        else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "requestItog"))
-        {
             socket->write(itog);
-            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "data"))

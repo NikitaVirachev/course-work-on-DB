@@ -763,13 +763,7 @@ void MainWindow::socketReady()
                 addActorWin->hide();
                 QMessageBox::information(this, "Информация", "Актёр успешно добавлен");
             }
-            else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "size"))
-            {
-                requireSize = doc.object().value("length").toInt();
-                socket->write("{\"type\":\"selectAllActorID\",\"params\":\"requestItog\"}");
-                socket->waitForBytesWritten(500);
-            }
-            else if ((doc.object().value("type").toString() == "selectAllActorID") && (doc.object().value("params").toString() == "itog"))
+            else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "allActorID"))
             {
                 QJsonArray docArr = doc.object().value("result").toArray();
                 QList <QString> listActorID;
@@ -1367,7 +1361,7 @@ void MainWindow::on_action_6_triggered()
 
 void MainWindow::on_action_7_triggered()
 {
-    socket->write("{\"type\":\"selectAllActorID\",\"params\":\"findSize\"}");
+    socket->write("{\"type\":\"addNewProtagonist\",\"params\":\"selectAllActorID\"}");
     socket->waitForBytesWritten(500);
 }
 
