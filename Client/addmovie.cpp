@@ -35,11 +35,11 @@ bool addMovie::checkField()
 void addMovie::acceptData(QList<QString> listMovieID, QList <QString> listDirectorID, QList <QString> listProtagonistID, QList <QString> listStudioName)
 {
     localListMovieID = listMovieID;
-    foreach( QString value, listDirectorID )
+    foreach( QString value, listProtagonistID )
     {
         ui->comboBox->addItem(value);
     }
-    foreach( QString value, listProtagonistID )
+    foreach( QString value, listDirectorID )
     {
         ui->comboBox_2->addItem(value);
     }

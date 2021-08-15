@@ -624,25 +624,34 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"selectScenario\"}");
                 socket->waitForBytesWritten(500);
             }
-            else if ((doc.object().value("type").toString() == "resultSelectAllID") && (doc.object().value("params").toString() == "size"))
+            else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "resultSelectAllID"))
             {
-                requireSize = doc.object().value("length").toInt();
-                socket->write("{\"type\":\"resultSelectAllID\"}");
-                socket->waitForBytesWritten(500);
-            }
-            else if (doc.object().value("type").toString() == "resultSelectAllID")
-            {
-                QJsonArray docArr = doc.object().value("result").toArray();
+                QJsonArray movieArr = doc.object().value("allMovieID").toArray();
                 QList <QString> listMovieID;
-                QList <QString> listDirectorID;
-                QList <QString> listProtagonistID;
-                QList <QString> listStudioName;
-                for (int i = 0; i < docArr.count(); ++i)
+                for (int i = 0; i < movieArr.count(); ++i)
                 {
-                    listMovieID.append(docArr.at(i).toObject().value("MovieID").toString());
-                    listDirectorID.append(docArr.at(i).toObject().value("DirectorID").toString());
-                    listProtagonistID.append(docArr.at(i).toObject().value("ProtagonistID").toString());
-                    listStudioName.append(docArr.at(i).toObject().value("StudioName").toString());
+                    listMovieID.append(movieArr.at(i).toObject().value("MovieID").toString());
+                }
+
+                QJsonArray directorArr = doc.object().value("allDirectorID").toArray();
+                QList <QString> listDirectorID;
+                for (int i = 0; i < directorArr.count(); ++i)
+                {
+                    listDirectorID.append(directorArr.at(i).toObject().value("DirectorID").toString());
+                }
+
+                QJsonArray protagonistArr = doc.object().value("allProtagonistID").toArray();
+                QList <QString> listProtagonistID;
+                for (int i = 0; i < protagonistArr.count(); ++i)
+                {
+                    listProtagonistID.append(protagonistArr.at(i).toObject().value("ProtagonistID").toString());
+                }
+
+                QJsonArray studioArr = doc.object().value("allStudioName").toArray();
+                QList <QString> listStudioName;
+                for (int i = 0; i < studioArr.count(); ++i)
+                {
+                    listStudioName.append(studioArr.at(i).toObject().value("StudioName").toString());
                 }
 
                 addMovieWin = new addMovie();
@@ -1147,7 +1156,7 @@ void MainWindow::socketReady()
         else if (pictureArrives)
         {
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
-            if ((pictureArrives) && (requireSize == Data.size()))
+            if (requireSize == Data.size())
             {
                 QPixmap outPoster = QPixmap();
                 outPoster.loadFromData(Data,"PNG");
@@ -1170,7 +1179,7 @@ void MainWindow::socketReady()
         else if (actorPortraitArrives)
         {
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
-            if ((actorPortraitArrives) && (requireSize == Data.size()))
+            if (requireSize == Data.size())
             {
                 QPixmap outActorPortrait = QPixmap();
                 outActorPortrait.loadFromData(Data,"PNG");
@@ -1193,7 +1202,7 @@ void MainWindow::socketReady()
         else if (scenarioArrives)
         {
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
-            if ((scenarioArrives) && (requireSize == Data.size()))
+            if (requireSize == Data.size())
             {
                 ui->textEdit->setText(Data);
                 ui->progressBar->hide();
@@ -1209,7 +1218,7 @@ void MainWindow::socketReady()
         else if (updPosterArrives)
         {
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
-            if ((updPosterArrives) && (requireSize == Data.size()))
+            if (requireSize == Data.size())
             {
                 updPoster = Data;
 
@@ -1314,7 +1323,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
 
 void MainWindow::on_action_2_triggered()
 {
-    socket->write("{\"type\":\"selectAllID\"}");
+    socket->write("{\"type\":\"addNewMovie\",\"params\":\"selectAllID\"}");
     socket->waitForBytesWritten(500);
 }
 

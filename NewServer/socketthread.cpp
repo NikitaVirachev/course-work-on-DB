@@ -445,33 +445,59 @@ void socketThread::mySocketReady()
             //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
-        else if (doc.object().value("type").toString() == "selectAllID")
+        else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "selectAllID"))
         {
-            itog = "{\"type\":\"resultSelectAllID\",\"result\":[";
-            if (db.isOpen())
+            itog = "{\"type\":\"addNewMovie\",\"params\":\"resultSelectAllID\",\"allMovieID\":[";
+
+            QSqlQuery* queryAllMovieID = new QSqlQuery(db);
+            if (queryAllMovieID->exec("SELECT MovieID FROM Movie"))
             {
-                QSqlQuery* queryAllID = new QSqlQuery(db);
-                if (queryAllID->exec("SELECT MovieID, DirectorID, ProtagonistID, StudioName FROM Movie"))
+                while (queryAllMovieID->next())
                 {
-                    while (queryAllID->next())
-                    {
-                        itog.append("{\"MovieID\":\""+queryAllID->value(0).toString()+
-                                    "\",\"DirectorID\":\""+queryAllID->value(1).toString()+
-                                    "\",\"ProtagonistID\":\""+queryAllID->value(2).toString()+
-                                    "\",\"StudioName\":\""+queryAllID->value(3).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"MovieID\":\""+queryAllMovieID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
+
+            itog.append("],\"allProtagonistID\":[");
+            QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
+            if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
+            {
+                while (queryAllProtagonistID->next())
+                {
+                    itog.append("{\"ProtagonistID\":\""+queryAllProtagonistID->value(0).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            itog.append("],\"allDirectorID\":[");
+            QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
+            if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
+            {
+                while (queryAllDirectorID->next())
+                {
+                    itog.append("{\"DirectorID\":\""+queryAllDirectorID->value(0).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            itog.append("],\"allStudioName\":[");
+            QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+            if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+            {
+                while (queryAllStudioName->next())
+                {
+                    itog.append("{\"StudioName\":\""+queryAllStudioName->value(0).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
             itog.append("]}");
-            socket->write("{\"type\":\"resultSelectAllID\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
-            socket->waitForBytesWritten(500);
-        }
-        else if (doc.object().value("type").toString() == "resultSelectAllID")
-        {
             socket->write(itog);
-            //qDebug() << "Размер ответного сообщения: " << socket->bytesToWrite();
             socket->waitForBytesWritten(500);
         }
         else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "basicInformation"))
