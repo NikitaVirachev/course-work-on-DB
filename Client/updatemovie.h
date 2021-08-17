@@ -20,11 +20,13 @@ public:
 
     QPixmap newPoster;
     QFile newScenario;
+    QPixmap outPoster;
 
     bool posterFlag = false;
     bool scenarioFlag = false;
 
     QList<QString> localListMovieID;
+    QString localScenario;
 
 public slots:
     void acceptMovieID(QList <QString>);
@@ -38,6 +40,12 @@ private slots:
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
+
+    void on_textEdit_textChanged();
+
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_checkBox_2_stateChanged(int arg1);
 
 signals:
     void sendMovieIDSignalUpd(QString);

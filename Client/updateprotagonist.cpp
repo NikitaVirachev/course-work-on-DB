@@ -46,7 +46,7 @@ void updateProtagonist::acceptInformationProtagonistUpd(QString name, QString ac
             ui->comboBox_2->setCurrentIndex(i);
         }
     }
-    ui->comboBox_2->addItem(" ");
+    ui->comboBox_2->addItem("");
     if (actorID == "0")
     {
         ui->comboBox_2->setCurrentIndex(listActorID.length()+1);

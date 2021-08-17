@@ -18,6 +18,9 @@ updateMovie::updateMovie(QWidget *parent) :
     ui->pushButton_3->setEnabled(false);
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
+    ui->comboBox->setEnabled(false);
+    ui->checkBox->setEnabled(false);
+    ui->checkBox_2->setEnabled(false);
 }
 
 updateMovie::~updateMovie()
@@ -39,6 +42,7 @@ void updateMovie::acceptMovieID(QList<QString> listMovieID)
     ui->label_10->clear();
     ui->textEdit->clear();
     ui->progressBar->hide();
+    ui->comboBox->setEnabled(true);
 
     localListMovieID = listMovieID;
     ui->comboBox->addItem(" ");
@@ -59,7 +63,11 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
             ui->comboBox_2->setCurrentIndex(i);
         }
     }
-    ui->comboBox_2->addItem(" ");
+    ui->comboBox_2->addItem("");
+    if (directorID == "0")
+    {
+        ui->comboBox_2->setCurrentIndex(listDirectorID.length()+1);
+    }
 
     for (int i = 0; i < listProtagonistID.length(); ++i)
     {
@@ -69,7 +77,11 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
             ui->comboBox_3->setCurrentIndex(i);
         }
     }
-    ui->comboBox_3->addItem(" ");
+    ui->comboBox_3->addItem("");
+    if (protagonistID == "0")
+    {
+        ui->comboBox_3->setCurrentIndex(listProtagonistID.length()+1);
+    }
 
     for (int i = 0; i < listStudioName.length(); ++i)
     {
@@ -79,25 +91,50 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
             ui->comboBox_4->setCurrentIndex(i);
         }
     }
-    ui->comboBox_4->addItem(" ");
+    ui->comboBox_4->addItem("");
+    if (studioName == "")
+    {
+        ui->comboBox_4->setCurrentIndex(listStudioName.length()+1);
+    }
 
     ui->lineEdit->setText(title);
-    ui->dateEdit->setDate(QDate::fromString(releaseDate, "yyyy-MM-dd"));
-    ui->dateEdit->setEnabled(true);
+
+    if (releaseDate == "")
+    {
+        ui->checkBox->setChecked(true);
+        ui->dateEdit->setDate(QDate::fromString("1900-01-01", "yyyy-MM-dd"));
+    }
+    else
+    {
+        ui->dateEdit->setDate(QDate::fromString(releaseDate, "yyyy-MM-dd"));
+        ui->dateEdit->setEnabled(true);
+    }
+
     ui->lineEdit_2->setText(boxOffice);
     ui->lineEdit_3->setText(budget);
 
-    QPixmap outPoster = QPixmap();
-    outPoster.loadFromData(poster,"PNG");
-    int w = ui->label_10->width();
-    int h = ui->label_10->height();
-    ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+    outPoster = QPixmap();
+    if (poster != "NULL")
+    {
+        outPoster.loadFromData(poster,"PNG");
+        int w = ui->label_10->width();
+        int h = ui->label_10->height();
+        ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+        ui->pushButton->setEnabled(true);
+    }
+    else
+    {
+        ui->checkBox_2->setChecked(true);
+    }
 
+    localScenario = scenario;
     ui->textEdit->setText(scenario);
 
-    ui->pushButton->setEnabled(true);
     ui->pushButton_2->setEnabled(true);
     ui->pushButton_3->setEnabled(true);
+    ui->comboBox->setEnabled(true);
+    ui->checkBox->setEnabled(true);
+    ui->checkBox_2->setEnabled(true);
 
     ui->progressBar->hide();
 }
@@ -117,6 +154,9 @@ void updateMovie::on_comboBox_currentIndexChanged(const QString &arg1)
         ui->comboBox_4->clear();
         ui->label_10->clear();
         ui->textEdit->clear();
+        ui->comboBox->setEnabled(false);
+        ui->checkBox->setEnabled(false);
+        ui->checkBox_2->setEnabled(false);
         ui->progressBar->show();
         emit sendMovieIDSignalUpd(arg1);
     }
@@ -128,6 +168,21 @@ void updateMovie::on_pushButton_3_clicked()
     bool uniqueID = true;
     bool movieIDFlag = false;
     QString movieID = "";
+    QString date;
+
+    if (ui->checkBox_2->checkState())
+    {
+        newPoster = QPixmap();
+    }
+
+    if (ui->checkBox->checkState())
+    {
+        date = "";
+    }
+    else
+    {
+        date = ui->dateEdit->text();
+    }
 
     if (ui->lineEdit_4->text() == "")
     {
@@ -159,10 +214,11 @@ void updateMovie::on_pushButton_3_clicked()
     {
         ui->progressBar->show();
         ui->pushButton_3->setEnabled(false);
+        ui->comboBox->setEnabled(false);
 
         if (posterFlag && scenarioFlag)
         {
-            sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+            sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                       ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster,
                                       ui->textEdit->toPlainText());
             posterFlag = false;
@@ -170,20 +226,20 @@ void updateMovie::on_pushButton_3_clicked()
         }
         else if (posterFlag)
         {
-            sendUpdateMovieWithPoster(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+            sendUpdateMovieWithPoster(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                       ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster);
             posterFlag = false;
         }
         else if (scenarioFlag)
         {
-            sendUpdateMovieWithScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+            sendUpdateMovieWithScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                         ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(),
                                         ui->textEdit->toPlainText());
             scenarioFlag = false;
         }
         else
         {
-            sendUpdateMovieWithout(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), ui->dateEdit->text(), ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+            sendUpdateMovieWithout(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                    ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText());
         }
     }
@@ -216,5 +272,48 @@ void updateMovie::on_pushButton_2_clicked()
     }
 
     scenarioFlag = true;
+}
+
+
+void updateMovie::on_textEdit_textChanged()
+{
+    if (ui->textEdit->toPlainText() != localScenario)
+    {
+        scenarioFlag = true;
+    }
+}
+
+
+void updateMovie::on_checkBox_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->dateEdit->setDate(QDate::fromString("1900-01-01", "yyyy-MM-dd"));
+        ui->dateEdit->setEnabled(false);
+    }
+    else
+    {
+        ui->dateEdit->setDate(QDate::currentDate());
+        ui->dateEdit->setEnabled(true);
+    }
+}
+
+
+void updateMovie::on_checkBox_2_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->pushButton->setEnabled(false);
+        ui->label_10->clear();
+        posterFlag = true;
+    }
+    else
+    {
+        int w = ui->label_10->width();
+        int h = ui->label_10->height();
+        ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+        ui->pushButton->setEnabled(true);
+        posterFlag = false;
+    }
 }
 

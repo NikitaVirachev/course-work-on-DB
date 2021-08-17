@@ -44,16 +44,31 @@ void updateActor::acceptInformationActorUpd(QString firstName, QString lastName,
 {
     ui->lineEdit_2->setText(firstName);
     ui->lineEdit_3->setText(lastName);
-    ui->dateEdit->setDate(QDate::fromString(dateOfBirth, "yyyy-MM-dd"));
-    ui->dateEdit->setEnabled(true);
 
-    QPixmap outPoster = QPixmap();
-    outPoster.loadFromData(actorPortrait,"PNG");
-    int w = ui->label_7->width();
-    int h = ui->label_7->height();
-    ui->label_7->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+    if (dateOfBirth == "")
+    {
+        ui->checkBox->setChecked(true);
+    }
+    else
+    {
+        ui->dateEdit->setDate(QDate::fromString(dateOfBirth, "yyyy-MM-dd"));
+        ui->dateEdit->setEnabled(true);
+    }
 
-    ui->pushButton->setEnabled(true);
+    if (actorPortrait != "NULL")
+    {
+        outPortrait = QPixmap();
+        outPortrait.loadFromData(actorPortrait,"PNG");
+        int w = ui->label_7->width();
+        int h = ui->label_7->height();
+        ui->label_7->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
+        ui->pushButton->setEnabled(true);
+    }
+    else
+    {
+        ui->checkBox_2->setChecked(true);
+    }
+
     ui->pushButton_2->setEnabled(true);
     ui->progressBar->hide();
 }
@@ -93,6 +108,21 @@ void updateActor::on_pushButton_2_clicked()
     bool uniqueID = true;
     bool actorIDFlag = false;
     QString actorID = "";
+    QString date;
+
+    if (ui->checkBox->checkState())
+    {
+        date = "";
+    }
+    else
+    {
+        date = ui->dateEdit->text();
+    }
+
+    if (ui->checkBox_2->checkState())
+    {
+        newActorPortrait = QPixmap();
+    }
 
     if (ui->lineEdit->text() == "")
     {
@@ -128,13 +158,48 @@ void updateActor::on_pushButton_2_clicked()
 
         if (portraitFlag)
         {
-            emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), ui->dateEdit->text(), newActorPortrait);
+            emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, newActorPortrait);
             portraitFlag = false;
         }
         else
         {
-            emit sendUpdateActorWithout(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), ui->dateEdit->text());
+            emit sendUpdateActorWithout(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
         }
+    }
+}
+
+
+void updateActor::on_checkBox_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->dateEdit->setDate(QDate::fromString("1900-01-01", "yyyy-MM-dd"));
+        ui->dateEdit->setEnabled(false);
+        ui->pushButton_2->setEnabled(true);
+    }
+    else
+    {
+        ui->dateEdit->setDate(QDate::currentDate());
+        ui->dateEdit->setEnabled(true);
+    }
+}
+
+
+void updateActor::on_checkBox_2_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->pushButton->setEnabled(false);
+        ui->label_7->clear();
+        portraitFlag = true;
+    }
+    else
+    {
+        int w = ui->label_7->width();
+        int h = ui->label_7->height();
+        ui->label_7->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
+        ui->pushButton->setEnabled(true);
+        portraitFlag = false;
     }
 }
 

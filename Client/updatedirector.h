@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_checkBox_stateChanged(int arg1);
+
 signals:
     void sendDirectorIDSignalUpd(QString);
     void sendUpdateDirector(QString, QString, QString, QString, QString);

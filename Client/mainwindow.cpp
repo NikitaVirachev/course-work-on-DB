@@ -107,15 +107,46 @@ void MainWindow::outputData()
     QList<QStandardItem*> listMovie;
 
     QJsonArray docArr = doc.object().value("result").toArray();
+    QStandardItem* title;
+    QStandardItem* releaseDate;
+    QStandardItem* boxOffice;
+    QStandardItem* budget;
 
     for (int i = 0; i < docArr.count(); ++i)
     {
         QStandardItem* movieID = new QStandardItem(docArr.at(i).toObject().value("movieID").toString());
-        //listMovieID.append(docArr.at(i).toObject().value("movieID").toString());
-        QStandardItem* title = new QStandardItem(docArr.at(i).toObject().value("title").toString());
-        QStandardItem* releaseDate = new QStandardItem(docArr.at(i).toObject().value("releaseDate").toString());
-        QStandardItem* boxOffice = new QStandardItem(docArr.at(i).toObject().value("boxOffice").toString());
-        QStandardItem* budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
+        if (docArr.at(i).toObject().value("title").toString() != "")
+        {
+            title = new QStandardItem(docArr.at(i).toObject().value("title").toString());
+        }
+        else
+        {
+            title = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("releaseDate").toString() != "")
+        {
+            releaseDate = new QStandardItem(docArr.at(i).toObject().value("releaseDate").toString());
+        }
+        else
+        {
+            releaseDate = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("boxOffice").toString() != "0")
+        {
+            boxOffice = new QStandardItem(docArr.at(i).toObject().value("boxOffice").toString());
+        }
+        else
+        {
+            boxOffice = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("budget").toString() != "0")
+        {
+            budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
+        }
+        else
+        {
+            budget = new QStandardItem("NULL");
+        }
         listMovie.append(movieID);
         listMovie.append(title);
         listMovie.append(releaseDate);
@@ -215,9 +246,16 @@ void MainWindow::prepareMovieInformationForUpdate(QString movieID)
 void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
                                              QString protagonistID, QString studioName, QPixmap poster)
 {
-    QBuffer buffer(&newPoster);
-    buffer.open(QIODevice::WriteOnly);
-    poster.save(&buffer, "PNG");
+    if (poster.isNull())
+    {
+        newPoster = NULL;
+    }
+    else
+    {
+        QBuffer buffer(&newPoster);
+        buffer.open(QIODevice::WriteOnly);
+        poster.save(&buffer, "PNG");
+    }
 
     if (socket->isOpen())
     {
@@ -272,9 +310,16 @@ void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QStr
 {
     newScenario = scenario.toUtf8();
 
-    QBuffer buffer(&newPoster);
-    buffer.open(QIODevice::WriteOnly);
-    poster.save(&buffer, "PNG");
+    if (poster.isNull())
+    {
+        newPoster = NULL;
+    }
+    else
+    {
+        QBuffer buffer(&newPoster);
+        buffer.open(QIODevice::WriteOnly);
+        poster.save(&buffer, "PNG");
+    }
 
     if (socket->isOpen())
     {
@@ -384,9 +429,16 @@ void MainWindow::prepareActorInformationForUpdate(QString actorID)
 
 void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString newActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
 {
-    QBuffer buffer(&newActorPortrait);
-    buffer.open(QIODevice::WriteOnly);
-    actorPortrait.save(&buffer, "PNG");
+    if (actorPortrait.isNull())
+    {
+        newActorPortrait = NULL;
+    }
+    else
+    {
+        QBuffer buffer(&newActorPortrait);
+        buffer.open(QIODevice::WriteOnly);
+        actorPortrait.save(&buffer, "PNG");
+    }
 
     if (socket->isOpen())
     {
@@ -502,15 +554,39 @@ void MainWindow::socketReady()
                 director->setHorizontalHeaderLabels(listHeaderDirector);
 
                 QList<QStandardItem*> listDirector;
+                QStandardItem* firstName;
+                QStandardItem* lastName;
+                QStandardItem* dateOfBirth;
 
                 QJsonArray docArr = doc.object().value("resultDirector").toArray();
 
                 for (int i = 0; i < docArr.count(); ++i)
                 {
                     QStandardItem* directorID = new QStandardItem(docArr.at(i).toObject().value("directorID").toString());
-                    QStandardItem* firstName = new QStandardItem(docArr.at(i).toObject().value("firstName").toString());
-                    QStandardItem* lastName = new QStandardItem(docArr.at(i).toObject().value("lastName").toString());
-                    QStandardItem* dateOfBirth = new QStandardItem(docArr.at(i).toObject().value("dateOfBirth").toString());
+                    if (docArr.at(i).toObject().value("firstName").toString() == "")
+                    {
+                        firstName = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        firstName = new QStandardItem(docArr.at(i).toObject().value("firstName").toString());
+                    }
+                    if (docArr.at(i).toObject().value("lastName").toString() == "")
+                    {
+                        lastName = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        lastName = new QStandardItem(docArr.at(i).toObject().value("lastName").toString());
+                    }
+                    if (docArr.at(i).toObject().value("dateOfBirth").toString() == "")
+                    {
+                        dateOfBirth = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        dateOfBirth = new QStandardItem(docArr.at(i).toObject().value("dateOfBirth").toString());
+                    }
                     listDirector.append(directorID);
                     listDirector.append(firstName);
                     listDirector.append(lastName);
@@ -539,13 +615,21 @@ void MainWindow::socketReady()
                 protagonist->setHorizontalHeaderLabels(listHeaderProtagonist);
 
                 QList<QStandardItem*> listProtagonist;
+                QStandardItem* protagonistName;
 
                 docArr = doc.object().value("resultProtagonist").toArray();
 
                 for (int i = 0; i < docArr.count(); ++i)
                 {
                     QStandardItem* protagonistID = new QStandardItem(docArr.at(i).toObject().value("protagonistID").toString());
-                    QStandardItem* protagonistName = new QStandardItem(docArr.at(i).toObject().value("name").toString());
+                    if (docArr.at(i).toObject().value("name").toString() == "")
+                    {
+                        protagonistName = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        protagonistName = new QStandardItem(docArr.at(i).toObject().value("name").toString());
+                    }
                     listProtagonist.append(protagonistID);
                     listProtagonist.append(protagonistName);
 
@@ -562,15 +646,39 @@ void MainWindow::socketReady()
                 actor->setHorizontalHeaderLabels(listHeaderActor);
 
                 QList<QStandardItem*> listActor;
+                QStandardItem* actorFirstName;
+                QStandardItem* actorLastName;
+                QStandardItem* actorDateOfBirth;
 
                 docArr = doc.object().value("resultActor").toArray();
 
                 for (int i = 0; i < docArr.count(); ++i)
                 {
                     QStandardItem* actorID = new QStandardItem(docArr.at(i).toObject().value("actorID").toString());
-                    QStandardItem* actorFirstName = new QStandardItem(docArr.at(i).toObject().value("firstName").toString());
-                    QStandardItem* actorLastName = new QStandardItem(docArr.at(i).toObject().value("lastName").toString());
-                    QStandardItem* actorDateOfBirth = new QStandardItem(docArr.at(i).toObject().value("dateOfBirth").toString());
+                    if (docArr.at(i).toObject().value("firstName").toString() == "")
+                    {
+                        actorFirstName = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        actorFirstName = new QStandardItem(docArr.at(i).toObject().value("firstName").toString());
+                    }
+                    if (docArr.at(i).toObject().value("lastName").toString() == "")
+                    {
+                        actorLastName = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        actorLastName = new QStandardItem(docArr.at(i).toObject().value("lastName").toString());
+                    }
+                    if (docArr.at(i).toObject().value("dateOfBirth").toString() == "")
+                    {
+                        actorDateOfBirth = new QStandardItem("NULL");
+                    }
+                    else
+                    {
+                        actorDateOfBirth = new QStandardItem(docArr.at(i).toObject().value("dateOfBirth").toString());
+                    }
                     listActor.append(actorID);
                     listActor.append(actorFirstName);
                     listActor.append(actorLastName);
@@ -908,29 +1016,72 @@ void MainWindow::socketReady()
             {
                 if (doc.object().value("additionally").toString() == "scenario")
                 {
-                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"additionally\":\"scenario\",\"length\":"+QByteArray::number(newPoster.size())+"}");
-                    socket->waitForBytesWritten(500);
+                    if (newPoster.isNull())
+                    {
+                        QString str = "NULL";
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"additionally\":\"scenario\",\"length\":"+QByteArray::number(str.size())+"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                    else
+                    {
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"additionally\":\"scenario\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                        socket->waitForBytesWritten(500);
+                    }
                 }
                 else
                 {
-                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
-                    socket->waitForBytesWritten(500);
+                    if (newPoster.isNull())
+                    {
+                        QString str = "NULL";
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"length\":"+QByteArray::number(str.size())+"}");
+                        socket->waitForBytesWritten(500);
+                    }
+                    else
+                    {
+                        socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewPoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                        socket->waitForBytesWritten(500);
+                    }
                 }
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestNewPoster"))
             {
-                socket->write(newPoster);
-                socket->waitForBytesWritten(500);
+                if (newPoster.isNull())
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write(newPoster);
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestSizeNewScenario"))
             {
-                socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
-                socket->waitForBytesWritten(500);
+                if (newScenario != "")
+                {
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"sizeNewScenario\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestNewScenario"))
             {
-                socket->write(newScenario);
-                socket->waitForBytesWritten(500);
+                if (newScenario != "")
+                {
+                    socket->write(newScenario);
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieUnsuccessfullyUpdated"))
             {
@@ -1062,13 +1213,30 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "requestSizeNewActorPortrait"))
             {
-                socket->write("{\"type\":\"updateActor\",\"params\":\"sizeNewActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
-                socket->waitForBytesWritten(500);
+                if (newActorPortrait.isNull())
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"updateActor\",\"params\":\"sizeNewActorPortrait\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("{\"type\":\"updateActor\",\"params\":\"sizeNewActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "requestNewActorPortrait"))
             {
-                socket->write(newActorPortrait);
-                socket->waitForBytesWritten(500);
+                if (newActorPortrait.isNull())
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write(newActorPortrait);
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "actorSuccessfullyUpdated"))
             {
@@ -1152,12 +1320,15 @@ void MainWindow::socketReady()
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
             if (requireSize == Data.size())
             {
-                QPixmap outPoster = QPixmap();
-                outPoster.loadFromData(Data,"PNG");
+                if (Data != "NULL")
+                {
+                    QPixmap outPoster = QPixmap();
+                    outPoster.loadFromData(Data,"PNG");
 
-                int w = ui->label->width();
-                int h = ui->label->height();
-                ui->label->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+                    int w = ui->label->width();
+                    int h = ui->label->height();
+                    ui->label->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+                }
 
                 socket->write("{\"type\":\"selectActorPortrait\",\"params\":\"selectSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1175,12 +1346,15 @@ void MainWindow::socketReady()
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
             if (requireSize == Data.size())
             {
-                QPixmap outActorPortrait = QPixmap();
-                outActorPortrait.loadFromData(Data,"PNG");
+                if (Data != "NULL")
+                {
+                    QPixmap outActorPortrait = QPixmap();
+                    outActorPortrait.loadFromData(Data,"PNG");
 
-                int w = ui->label_2->width();
-                int h = ui->label_2->height();
-                ui->label_2->setPixmap(outActorPortrait.scaled(w,h,Qt::KeepAspectRatio));
+                    int w = ui->label_2->width();
+                    int h = ui->label_2->height();
+                    ui->label_2->setPixmap(outActorPortrait.scaled(w,h,Qt::KeepAspectRatio));
+                }
 
                 socket->write("{\"type\":\"selectScenario\",\"params\":\"selectSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1198,7 +1372,10 @@ void MainWindow::socketReady()
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
             if (requireSize == Data.size())
             {
-                ui->textEdit->setText(Data);
+                if (Data != "NULL")
+                {
+                    ui->textEdit->setText(Data);
+                }
                 ui->progressBar->hide();
                 ui->menubar->setEnabled(true);
                 scenarioArrives = false;
@@ -1232,7 +1409,14 @@ void MainWindow::socketReady()
             //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
             if (requireSize == Data.size())
             {
-                updScenario = Data;
+                if (Data != "NULL")
+                {
+                    updScenario = Data;
+                }
+                else
+                {
+                    updScenario = "";
+                }
 
                 socket->write("{\"type\":\"updateMovie\",\"params\":\"requestAllID\"}");
                 socket->waitForBytesWritten(500);
@@ -1295,14 +1479,47 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     ui->progressBar->show();
     ui->menubar->setEnabled(false);
 
+    QString title;
+    QString releaseDate;
+    QString boxOffice;
+    QString budget;
+
     if (socket->isOpen())
     {
         int row = index.row();
         QString movieID = index.sibling(row, 0).data().toString();
-        QString title = index.sibling(row, 1).data().toString();
-        QString releaseDate = index.sibling(row, 2).data().toString();
-        QString boxOffice = index.sibling(row, 3).data().toString();
-        QString budget = index.sibling(row, 4).data().toString();
+        if (index.sibling(row, 1).data().toString() == "NULL")
+        {
+            title = "";
+        }
+        else
+        {
+            title = index.sibling(row, 1).data().toString();
+        }
+        if (index.sibling(row, 2).data().toString() == "NULL")
+        {
+            releaseDate = "";
+        }
+        else
+        {
+            releaseDate = index.sibling(row, 2).data().toString();
+        }
+        if (index.sibling(row, 3).data().toString() == "NULL")
+        {
+            boxOffice = "0";
+        }
+        else
+        {
+            boxOffice = index.sibling(row, 3).data().toString();
+        }
+        if (index.sibling(row, 4).data().toString() == "NULL")
+        {
+            budget = "0";
+        }
+        else
+        {
+            budget = index.sibling(row, 4).data().toString();
+        }
 
         socket->write("{\"type\":\"selectSelectInformationOnFilm\",\"params\":\"informationOnFilm\",\"id\":\"" + movieID.toUtf8() + "\""
                       ",\"title\":\"" + title.toUtf8() + "\",\"releaseDate\":\"" + releaseDate.toUtf8() + "\""
