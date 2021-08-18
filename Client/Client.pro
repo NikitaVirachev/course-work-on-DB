@@ -17,6 +17,7 @@ SOURCES += \
     login.cpp \
     main.cpp \
     mainwindow.cpp \
+    outputdirector.cpp \
     updateactor.cpp \
     updatedirector.cpp \
     updatemovie.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     addstudio.h \
     login.h \
     mainwindow.h \
+    outputdirector.h \
     updateactor.h \
     updatedirector.h \
     updatemovie.h \
@@ -45,6 +47,7 @@ FORMS += \
     addstudio.ui \
     login.ui \
     mainwindow.ui \
+    outputdirector.ui \
     updateactor.ui \
     updatedirector.ui \
     updatemovie.ui \

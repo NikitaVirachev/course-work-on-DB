@@ -1591,6 +1591,29 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "outputDirector") && (doc.object().value("params").toString() == "findAllDirector"))
+        {
+            itog = "{\"type\":\"outputDirector\",\"params\":\"resultAllDirector\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllDirector = new QSqlQuery(db);
+                if (queryAllDirector->exec("SELECT DirectorID, FirstName, LastName, DateOfBirth FROM Director"))
+                {
+                    while (queryAllDirector->next())
+                    {
+                        itog.append("{\"directorID\":\""+queryAllDirector->value(0).toString()+
+                                    "\",\"firstName\":\""+queryAllDirector->value(1).toString()+
+                                    "\",\"lastName\":\""+queryAllDirector->value(2).toString()+
+                                    "\",\"dateOfBirth\":\""+queryAllDirector->value(3).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();

@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent):
     ui->progressBar->hide();
     ui->menu_2->setEnabled(false);
     ui->menu_3->setEnabled(false);
+    ui->menu_4->setEnabled(false);
     ui->action_3->setEnabled(false);
 
     socket = new QTcpSocket(this);
@@ -586,6 +587,7 @@ void MainWindow::socketReady()
                 logwin->hide();
                 ui->menu_2->setEnabled(true);
                 ui->menu_3->setEnabled(true);
+                ui->menu_4->setEnabled(true);
                 ui->action_3->setEnabled(true);
                 ui->action->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Соединение установлено");
@@ -1438,6 +1440,20 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "outputDirector") && (doc.object().value("params").toString() == "resultAllDirector"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+
+                outputDirectorWin = new outputDirector();
+
+                connect(this,SIGNAL(sendOutputDirector(QJsonArray)), outputDirectorWin, SLOT(acceptDirector(QJsonArray)));
+                emit sendOutputDirector(docArr);
+
+                outputDirectorWin->setWindowTitle("Вывод режиссёров");
+                outputDirectorWin->show();
+
+                //connect(updateDorectorWin,SIGNAL(sendDirectorIDSignalUpd(QString)), this, SLOT(prepareDirectorInformationForUpdate(QString)));
+            }
             else
             {
                 complexData = true;
@@ -1744,6 +1760,13 @@ void MainWindow::on_action_11_triggered()
 void MainWindow::on_action_12_triggered()
 {
     socket->write("{\"type\":\"updateProtagonist\",\"params\":\"findAllProtagonistID\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_13_triggered()
+{
+    socket->write("{\"type\":\"outputDirector\",\"params\":\"findAllDirector\"}");
     socket->waitForBytesWritten(500);
 }
 
