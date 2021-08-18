@@ -17,31 +17,15 @@ addProtagonist::~addProtagonist()
     delete ui;
 }
 
-bool addProtagonist::checkField()
+void addProtagonist::acceptData(QList<QString> listActorID)
 {
-    if(ui->lineEdit->text().isEmpty()) return false;
-
-    return true;
-}
-
-void addProtagonist::acceptData(QList<QString> listProtagonistID)
-{
-    foreach( QString value, listProtagonistID )
+    foreach( QString value, listActorID )
     {
         ui->comboBox->addItem(value);
     }
-}
+    ui->comboBox->addItem("");
 
-void addProtagonist::on_lineEdit_textChanged(const QString &arg1)
-{
-    if (checkField())
-    {
-        ui->pushButton->setEnabled(true);
-    }
-    else
-    {
-        ui->pushButton->setEnabled(false);
-    }
+    ui->pushButton->setEnabled(true);
 }
 
 

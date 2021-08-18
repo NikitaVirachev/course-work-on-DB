@@ -62,9 +62,16 @@ void MainWindow::preparingAddMovie(QString title, QString releaseDate, QString b
 {
     newScenario = scenario.toUtf8();
 
-    QBuffer buffer(&newPoster);
-    buffer.open(QIODevice::WriteOnly);
-    poster.save(&buffer, "PNG");
+    if (poster.isNull())
+    {
+        newPoster = NULL;
+    }
+    else
+    {
+        QBuffer buffer(&newPoster);
+        buffer.open(QIODevice::WriteOnly);
+        poster.save(&buffer, "PNG");
+    }
 
     if (socket->isOpen())
     {
@@ -195,9 +202,16 @@ void MainWindow::preparingAddStudio(QString studioName)
 
 void MainWindow::preparingAddActor(QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
 {
-    QBuffer buffer(&newActorPortrait);
-    buffer.open(QIODevice::WriteOnly);
-    actorPortrait.save(&buffer, "PNG");
+    if (actorPortrait.isNull())
+    {
+        newActorPortrait = NULL;
+    }
+    else
+    {
+        QBuffer buffer(&newActorPortrait);
+        buffer.open(QIODevice::WriteOnly);
+        actorPortrait.save(&buffer, "PNG");
+    }
 
     if (socket->isOpen())
     {
@@ -774,23 +788,57 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "findSizePoster"))
             {
-                socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizePoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
-                socket->waitForBytesWritten(500);
+                if (newPoster.isNull())
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizePoster\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizePoster\",\"length\":"+QByteArray::number(newPoster.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "requestNewPoster"))
             {
-                socket->write(newPoster);
-                socket->waitForBytesWritten(500);
+                if (newPoster.isNull())
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write(newPoster);
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "findSizeScenario"))
             {
-                socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizeScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
-                socket->waitForBytesWritten(500);
+                if (newScenario == "")
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizeScenario\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("{\"type\":\"addNewMovie\",\"params\":\"sizeScenario\",\"length\":"+QByteArray::number(newScenario.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "requestNewScenario"))
             {
-                socket->write(newScenario);
-                socket->waitForBytesWritten(500);
+                if (newScenario == "")
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write(newScenario);
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewMovie") && (doc.object().value("params").toString() == "movieAddedSuccessfully"))
             {
@@ -858,13 +906,30 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "findSizeActorPortrait"))
             {
-                socket->write("{\"type\":\"addNewActor\",\"params\":\"sizeActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
-                socket->waitForBytesWritten(500);
+                if (newActorPortrait.isNull())
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"addNewActor\",\"params\":\"sizeActorPortrait\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write("{\"type\":\"addNewActor\",\"params\":\"sizeActorPortrait\",\"length\":"+QByteArray::number(newActorPortrait.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "requestNewActorPortrait"))
             {
-                socket->write(newActorPortrait);
-                socket->waitForBytesWritten(500);
+                if (newActorPortrait.isNull())
+                {
+                    socket->write("NULL");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    socket->write(newActorPortrait);
+                    socket->waitForBytesWritten(500);
+                }
             }
             else if ((doc.object().value("type").toString() == "addNewActor") && (doc.object().value("params").toString() == "actorAddedSuccessfully"))
             {

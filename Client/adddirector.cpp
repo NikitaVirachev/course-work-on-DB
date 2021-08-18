@@ -8,7 +8,6 @@ addDirector::addDirector(QWidget *parent) :
     ui->setupUi(this);
 
     ui->dateEdit->setDate(QDate::currentDate());
-    ui->pushButton->setEnabled(false);
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
 }
@@ -18,43 +17,36 @@ addDirector::~addDirector()
     delete ui;
 }
 
-bool addDirector::checkField()
-{
-    if(ui->lineEdit->text().isEmpty()) return false;
-    if(ui->lineEdit_2->text().isEmpty()) return false;
-
-    return true;
-}
-
-void addDirector::on_lineEdit_textChanged(const QString &arg1)
-{
-    if (checkField())
-    {
-        ui->pushButton->setEnabled(true);
-    }
-    else
-    {
-        ui->pushButton->setEnabled(false);
-    }
-}
-
-
-void addDirector::on_lineEdit_2_textChanged(const QString &arg1)
-{
-    if (checkField())
-    {
-        ui->pushButton->setEnabled(true);
-    }
-    else
-    {
-        ui->pushButton->setEnabled(false);
-    }
-}
-
-
 void addDirector::on_pushButton_clicked()
 {
+    QString date;
+
+    if (ui->checkBox->checkState())
+    {
+        date = "";
+    }
+    else
+    {
+        date = ui->dateEdit->text();
+    }
+
     ui->progressBar->show();
-    emit sendAddDirectorSignal(ui->lineEdit->text(), ui->lineEdit_2->text(), ui->dateEdit->text());
+    emit sendAddDirectorSignal(ui->lineEdit->text(), ui->lineEdit_2->text(), date);
+}
+
+
+void addDirector::on_checkBox_stateChanged(int arg1)
+{
+    if (arg1 == 2)
+    {
+        ui->dateEdit->setDate(QDate::fromString("1900-01-01", "yyyy-MM-dd"));
+        ui->dateEdit->setEnabled(false);
+        ui->pushButton->setEnabled(true);
+    }
+    else
+    {
+        ui->dateEdit->setDate(QDate::currentDate());
+        ui->dateEdit->setEnabled(true);
+    }
 }
 

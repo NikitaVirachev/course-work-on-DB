@@ -18,18 +18,17 @@ public:
     explicit addActor(QWidget *parent = nullptr);
     ~addActor();
 
-    bool checkField();
-
     QPixmap newActorPortrait;
 
 private slots:
-    void on_lineEdit_textChanged(const QString &arg1);
-
-    void on_lineEdit_2_textChanged(const QString &arg1);
 
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
+
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_checkBox_2_stateChanged(int arg1);
 
 signals:
 
