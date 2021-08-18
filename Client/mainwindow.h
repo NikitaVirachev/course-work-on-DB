@@ -86,6 +86,9 @@ public:
     QJsonDocument doc;
     QJsonParseError docError;
 
+    bool flagContextMenu;
+    QString globalID;
+
 public slots:
     void socketReady();
     void socketDisc();
@@ -110,6 +113,8 @@ public slots:
     void preparingUpdActorWithout(QString, QString, QString, QString, QString);
     void prepareProtagonistInformationForUpdate(QString);
     void preparingUpdProtagonist(QString, QString, QString, QString);
+    void customMenuReq(QPoint);
+    void deleteMovie();
 
 private slots:
     void on_action_triggered();

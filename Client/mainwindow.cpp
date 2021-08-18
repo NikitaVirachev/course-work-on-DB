@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent):
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
+    flagContextMenu = false;
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView_2->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView_2->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -164,7 +167,7 @@ void MainWindow::outputData()
         listMovie.clear();
     }
 
-
+    flagContextMenu = true;
     ui->tableView->setModel(movies);
 }
 
@@ -521,6 +524,37 @@ void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString newP
     }
 }
 
+void MainWindow::customMenuReq(QPoint pos)
+{
+    if (flagContextMenu)
+    {
+        QModelIndex index = ui->tableView->indexAt(pos);
+        globalID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toString();
+
+        QMenu* menu = new QMenu(this);
+        QAction* deleteMovie = new QAction("Удалить фильм", this);
+        connect(deleteMovie, SIGNAL(triggered()), this, SLOT(deleteMovie()));
+
+        menu->addAction(deleteMovie);
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void MainWindow::deleteMovie()
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"deleteMovie\",\"params\":\"sendID\""
+                      ",\"id\":\"" + globalID.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -713,6 +747,7 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "selectSelectInformationOnFilm") && (doc.object().value("params").toString() == "fail"))
             {
+                flagContextMenu = false;
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
@@ -845,6 +880,7 @@ void MainWindow::socketReady()
                 addMovieWin->hide();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Фильм успешно добавлен");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1073,6 +1109,7 @@ void MainWindow::socketReady()
                 updateMovieWin->hide();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Фильм успешно обновлён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1153,6 +1190,7 @@ void MainWindow::socketReady()
                 updateMovieWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1191,6 +1229,7 @@ void MainWindow::socketReady()
                 updateDorectorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Режиссёр успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1200,6 +1239,7 @@ void MainWindow::socketReady()
                 updateDorectorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1229,6 +1269,7 @@ void MainWindow::socketReady()
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Киностудия успешно изменена");
+                flagContextMenu = false;
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
@@ -1238,6 +1279,7 @@ void MainWindow::socketReady()
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                flagContextMenu = false;
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
             }
@@ -1308,6 +1350,7 @@ void MainWindow::socketReady()
                 updateActorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Актёр успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1317,6 +1360,7 @@ void MainWindow::socketReady()
                 updateActorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1361,6 +1405,7 @@ void MainWindow::socketReady()
                 updateProtagonistWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Главный герой успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1370,6 +1415,25 @@ void MainWindow::socketReady()
                 updateProtagonistWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                flagContextMenu = false;
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteMovie") && (doc.object().value("params").toString() == "movieSuccessfullyDeleted"))
+            {
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                flagContextMenu = false;
+                QMessageBox::information(this, "Информация", "Фильм успешно удалён");
+                socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteMovie") && (doc.object().value("params").toString() == "movieUnsuccessfullyDeleted"))
+            {
+                ui->progressBar->show();
+                ui->menubar->setEnabled(false);
+                flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -1607,6 +1671,7 @@ void MainWindow::on_action_3_triggered()
 {
     ui->progressBar->show();
     ui->menubar->setEnabled(false);
+    flagContextMenu = false;
     socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
     socket->waitForBytesWritten(500);
 }
