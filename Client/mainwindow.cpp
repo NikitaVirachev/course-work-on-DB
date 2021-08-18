@@ -556,6 +556,21 @@ void MainWindow::deleteMovie()
     }
 }
 
+void MainWindow::deleteDirector(QString id)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"deleteDirector\",\"params\":\"sendID\""
+                      ",\"id\":\"" + id.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1452,7 +1467,21 @@ void MainWindow::socketReady()
                 outputDirectorWin->setWindowTitle("Вывод режиссёров");
                 outputDirectorWin->show();
 
-                //connect(updateDorectorWin,SIGNAL(sendDirectorIDSignalUpd(QString)), this, SLOT(prepareDirectorInformationForUpdate(QString)));
+                connect(outputDirectorWin,SIGNAL(sendDeleteDirectorSignal(QString)), this, SLOT(deleteDirector(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "deleteDirector") && (doc.object().value("params").toString() == "directorSuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Информация", "Режиссёр успешно удалён");
+                outputDirectorWin->close();
+                socket->write("{\"type\":\"outputDirector\",\"params\":\"findAllDirector\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteDirector") && (doc.object().value("params").toString() == "directorUnsuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                outputDirectorWin->close();
+                socket->write("{\"type\":\"outputDirector\",\"params\":\"findAllDirector\"}");
+                socket->waitForBytesWritten(500);
             }
             else
             {

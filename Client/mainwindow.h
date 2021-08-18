@@ -117,6 +117,7 @@ public slots:
     void preparingUpdProtagonist(QString, QString, QString, QString);
     void customMenuReq(QPoint);
     void deleteMovie();
+    void deleteDirector(QString);
 
 private slots:
     void on_action_triggered();

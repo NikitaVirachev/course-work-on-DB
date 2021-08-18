@@ -8,6 +8,11 @@ outputDirector::outputDirector(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
+    flagContextMenu = false;
+    ui->progressBar->setRange(0,0);
+    ui->progressBar->hide();
 }
 
 outputDirector::~outputDirector()
@@ -67,4 +72,29 @@ void outputDirector::acceptDirector(QJsonArray docArr)
 
         ui->tableView->setModel(director);
     }
+    ui->progressBar->hide();
+    flagContextMenu = true;
+}
+
+void outputDirector::customMenuReq(QPoint pos)
+{
+    if (flagContextMenu)
+    {
+        QModelIndex index = ui->tableView->indexAt(pos);
+        globalID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toString();
+
+        QMenu* menu = new QMenu(this);
+        QAction* deleteDirector = new QAction("Удалить режиссёра", this);
+        connect(deleteDirector, SIGNAL(triggered()), this, SLOT(deleteDirector()));
+
+        menu->addAction(deleteDirector);
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void outputDirector::deleteDirector()
+{
+    flagContextMenu = false;
+    ui->progressBar->show();
+    emit sendDeleteDirectorSignal(globalID);
 }

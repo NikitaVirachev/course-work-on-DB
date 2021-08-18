@@ -1614,6 +1614,32 @@ void socketThread::mySocketReady()
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
+        else if ((doc.object().value("type").toString() == "deleteDirector") && (doc.object().value("params").toString() == "sendID"))
+        {
+            if (checkDirectorID(doc.object().value("id").toString()))
+            {
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("DELETE FROM Director WHERE DirectorID=:DirectorID");
+                query->bindValue(":DirectorID", doc.object().value("id").toString());
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на удаление режиссёра составлен неверно!";
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " удалил режиссёра с id = " << doc.object().value("id").toString();
+                    socket->write("{\"type\":\"deleteDirector\",\"params\":\"directorSuccessfullyDeleted\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+            else
+            {
+                qDebug()<<"Клиент " << socketDescriptor << " не смог удалить режиссёра с id = " << doc.object().value("id").toString();
+                socket->write("{\"type\":\"deleteDirector\",\"params\":\"directorUnsuccessfullyDeleted\"}");
+                socket->waitForBytesWritten(500);
+            }
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();

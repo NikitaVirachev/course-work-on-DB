@@ -9,6 +9,8 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include <QStandardItem>
+#include <QMenu>
+#include <QAction>
 
 namespace Ui {
 class outputDirector;
@@ -24,8 +26,16 @@ public:
 
     QStandardItemModel* director = new QStandardItemModel(nullptr);
 
+    bool flagContextMenu;
+    QString globalID;
+
 public slots:
     void acceptDirector(QJsonArray);
+    void customMenuReq(QPoint);
+    void deleteDirector();
+
+signals:
+    void sendDeleteDirectorSignal(QString);
 
 private:
     Ui::outputDirector *ui;
