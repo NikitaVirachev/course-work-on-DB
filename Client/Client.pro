@@ -19,6 +19,7 @@ SOURCES += \
     mainwindow.cpp \
     outputactor.cpp \
     outputdirector.cpp \
+    outputprotagonist.cpp \
     outputstudio.cpp \
     updateactor.cpp \
     updatedirector.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     mainwindow.h \
     outputactor.h \
     outputdirector.h \
+    outputprotagonist.h \
     outputstudio.h \
     updateactor.h \
     updatedirector.h \
@@ -53,6 +55,7 @@ FORMS += \
     mainwindow.ui \
     outputactor.ui \
     outputdirector.ui \
+    outputprotagonist.ui \
     outputstudio.ui \
     updateactor.ui \
     updatedirector.ui \

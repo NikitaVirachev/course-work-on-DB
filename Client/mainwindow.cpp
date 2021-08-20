@@ -1591,6 +1591,20 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"outputActor\",\"params\":\"findAllActor\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "outputProtagonist") && (doc.object().value("params").toString() == "resultAllProtagonist"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+
+                outputProtagonistWin = new outputProtagonist();
+
+                connect(this,SIGNAL(sendOutputProtagonist(QJsonArray)), outputProtagonistWin, SLOT(acceptProtagonist(QJsonArray)));
+                emit sendOutputProtagonist(docArr);
+
+                outputProtagonistWin->setWindowTitle("Вывод главных героев");
+                outputProtagonistWin->show();
+
+                //connect(outputActorWin,SIGNAL(sendDeleteActorSignal(QString)), this, SLOT(deleteActor(QString)));
+            }
             else
             {
                 complexData = true;
@@ -1935,6 +1949,13 @@ void MainWindow::on_action_14_triggered()
 void MainWindow::on_action_15_triggered()
 {
     socket->write("{\"type\":\"outputActor\",\"params\":\"findAllActor\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_16_triggered()
+{
+    socket->write("{\"type\":\"outputProtagonist\",\"params\":\"findAllProtagonist\"}");
     socket->waitForBytesWritten(500);
 }
 

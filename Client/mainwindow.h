@@ -25,6 +25,7 @@
 #include "outputdirector.h"
 #include "outputstudio.h"
 #include "outputactor.h"
+#include "outputprotagonist.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -52,6 +53,7 @@ public:
     outputDirector* outputDirectorWin;
     outputStudio* outputStudioWin;
     outputActor* outputActorWin;
+    outputProtagonist* outputProtagonistWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -160,6 +162,8 @@ private slots:
 
     void on_action_15_triggered();
 
+    void on_action_16_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void sendStudioNames(QList <QString>);
@@ -178,6 +182,7 @@ signals:
     void sendOutputStudio(QJsonArray);
     void sendOutputActor(QJsonArray);
     void sendOutputActorPortrait(QByteArray);
+    void sendOutputProtagonist(QJsonArray);
 
 private:
     Ui::MainWindow *ui;

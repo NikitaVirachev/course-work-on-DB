@@ -1771,6 +1771,28 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "outputProtagonist") && (doc.object().value("params").toString() == "findAllProtagonist"))
+        {
+            itog = "{\"type\":\"outputProtagonist\",\"params\":\"resultAllProtagonist\",\"result\":[";
+
+            QSqlQuery* protagonist = new QSqlQuery(db);
+            if (protagonist->exec("SELECT ProtagonistID, Name, ActorID FROM Protagonist"))
+            {
+                while (protagonist->next())
+                {
+
+                    itog.append("{\"protagonistID\":\""+protagonist->value(0).toString()+
+                                "\",\"name\":\""+protagonist->value(1).toString()+
+                                "\",\"actorID\":\""+protagonist->value(2).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
