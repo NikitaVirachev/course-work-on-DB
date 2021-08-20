@@ -599,6 +599,21 @@ void MainWindow::requestPhotoActor(QString actorID)
     }
 }
 
+void MainWindow::deleteActor(QString id)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"deleteActor\",\"params\":\"sendID\""
+                      ",\"id\":\"" + id.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1553,13 +1568,27 @@ void MainWindow::socketReady()
 
                 connect(outputActorWin,SIGNAL(requestPhotoActor(QString)), this, SLOT(requestPhotoActor(QString)));
 
-                //connect(outputStudioWin,SIGNAL(sendDeleteStudioSignal(QString)), this, SLOT(deleteStudio(QString)));
+                connect(outputActorWin,SIGNAL(sendDeleteActorSignal(QString)), this, SLOT(deleteActor(QString)));
             }
             else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "sizePhotoActor"))
             {
                 requireSize = doc.object().value("length").toInt();
                 actorPortraitOutputArrives = true;
                 socket->write("{\"type\":\"outputActor\",\"params\":\"findPhotoActor\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteActor") && (doc.object().value("params").toString() == "actorSuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Информация", "Актёр успешно удалён");
+                outputActorWin->close();
+                socket->write("{\"type\":\"outputActor\",\"params\":\"findAllActor\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteActor") && (doc.object().value("params").toString() == "actorUnsuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                outputActorWin->close();
+                socket->write("{\"type\":\"outputActor\",\"params\":\"findAllActor\"}");
                 socket->waitForBytesWritten(500);
             }
             else

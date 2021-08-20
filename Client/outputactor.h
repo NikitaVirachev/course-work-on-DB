@@ -32,8 +32,8 @@ public:
 public slots:
     void acceptActor(QJsonArray);
     void acceptActorPortrait(QByteArray actorPortrait);
-    //void customMenuReq(QPoint);
-    //void deleteDirector();
+    void customMenuReq(QPoint);
+    void deleteActor();
 
 private slots:
     void on_tableView_clicked(const QModelIndex &index);
@@ -41,6 +41,7 @@ private slots:
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void requestPhotoActor(QString actorID);
+    void sendDeleteActorSignal(QString);
 
 private:
     Ui::outputActor *ui;

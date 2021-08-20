@@ -125,6 +125,7 @@ public slots:
     void deleteDirector(QString);
     void deleteStudio(QString);
     void requestPhotoActor(QString actorID);
+    void deleteActor(QString);
 
 private slots:
     void on_action_triggered();

@@ -8,9 +8,9 @@ outputActor::outputActor(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-    //    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
-    //flagContextMenu = false;
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
+    flagContextMenu = false;
     ui->label_2->clear();
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
@@ -88,12 +88,37 @@ void outputActor::acceptActorPortrait(QByteArray actorPortrait)
         ui->label_2->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
     }
     ui->progressBar->hide();
+    flagContextMenu = true;
+}
+
+void outputActor::customMenuReq(QPoint pos)
+{
+    if (flagContextMenu)
+    {
+        QModelIndex index = ui->tableView->indexAt(pos);
+        globalID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toString();
+
+        QMenu* menu = new QMenu(this);
+        QAction* deleteActor = new QAction("Удалить актёра", this);
+        connect(deleteActor, SIGNAL(triggered()), this, SLOT(deleteActor()));
+
+        menu->addAction(deleteActor);
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void outputActor::deleteActor()
+{
+    flagContextMenu = false;
+    ui->progressBar->show();
+    emit sendDeleteActorSignal(globalID);
 }
 
 void outputActor::on_tableView_clicked(const QModelIndex &index)
 {
     ui->label_2->clear();
     ui->progressBar->show();
+    flagContextMenu = false;
     int row = index.row();
     QString actorID = index.sibling(row, 0).data().toString();
     emit requestPhotoActor(actorID);
