@@ -120,6 +120,7 @@ public slots:
     void customMenuReq(QPoint);
     void deleteMovie();
     void deleteDirector(QString);
+    void deleteStudio(QString);
 
 private slots:
     void on_action_triggered();

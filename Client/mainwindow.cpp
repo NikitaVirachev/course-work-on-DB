@@ -571,6 +571,21 @@ void MainWindow::deleteDirector(QString id)
     }
 }
 
+void MainWindow::deleteStudio(QString id)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"deleteStudio\",\"params\":\"sendID\""
+                      ",\"id\":\"" + id.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1495,7 +1510,21 @@ void MainWindow::socketReady()
                 outputStudioWin->setWindowTitle("Вывод киностудий");
                 outputStudioWin->show();
 
-                //connect(outputDirectorWin,SIGNAL(sendDeleteDirectorSignal(QString)), this, SLOT(deleteDirector(QString)));
+                connect(outputStudioWin,SIGNAL(sendDeleteStudioSignal(QString)), this, SLOT(deleteStudio(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "deleteStudio") && (doc.object().value("params").toString() == "studioSuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Информация", "Киностудия успешно удалена");
+                outputStudioWin->close();
+                socket->write("{\"type\":\"outputStudio\",\"params\":\"findAllStudio\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteStudio") && (doc.object().value("params").toString() == "studioUnsuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                outputStudioWin->close();
+                socket->write("{\"type\":\"outputStudio\",\"params\":\"findAllStudio\"}");
+                socket->waitForBytesWritten(500);
             }
             else
             {

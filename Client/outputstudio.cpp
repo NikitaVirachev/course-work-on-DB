@@ -8,9 +8,9 @@ outputStudio::outputStudio(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-    //    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
-    //flagContextMenu = false;
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
+    flagContextMenu = false;
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
 }
@@ -40,4 +40,27 @@ void outputStudio::acceptStudio(QJsonArray docArr)
 
     ui->progressBar->hide();
     flagContextMenu = true;
+}
+
+void outputStudio::customMenuReq(QPoint pos)
+{
+    if (flagContextMenu)
+    {
+        QModelIndex index = ui->tableView->indexAt(pos);
+        globalID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toString();
+
+        QMenu* menu = new QMenu(this);
+        QAction* deleteStudio = new QAction("Удалить киностудию", this);
+        connect(deleteStudio, SIGNAL(triggered()), this, SLOT(deleteStudio()));
+
+        menu->addAction(deleteStudio);
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void outputStudio::deleteStudio()
+{
+    flagContextMenu = false;
+    ui->progressBar->show();
+    emit sendDeleteStudioSignal(globalID);
 }

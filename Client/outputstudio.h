@@ -31,8 +31,11 @@ public:
 
 public slots:
     void acceptStudio(QJsonArray);
-    //void customMenuReq(QPoint);
-    //void deleteStudio();
+    void customMenuReq(QPoint);
+    void deleteStudio();
+
+signals:
+    void sendDeleteStudioSignal(QString);
 
 private:
     Ui::outputStudio *ui;
