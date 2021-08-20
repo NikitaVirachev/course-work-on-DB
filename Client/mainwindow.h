@@ -24,6 +24,7 @@
 #include "updateprotagonist.h"
 #include "outputdirector.h"
 #include "outputstudio.h"
+#include "outputactor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -50,6 +51,7 @@ public:
     updateProtagonist* updateProtagonistWin;
     outputDirector* outputDirectorWin;
     outputStudio* outputStudioWin;
+    outputActor* outputActorWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -69,6 +71,7 @@ public:
     bool updPosterArrives = false;
     bool updScenarioArrives = false;
     bool updPortraitArrives = false;
+    bool actorPortraitOutputArrives = false;
 
     QByteArray newPoster;
     QByteArray newScenario;
@@ -121,6 +124,7 @@ public slots:
     void deleteMovie();
     void deleteDirector(QString);
     void deleteStudio(QString);
+    void requestPhotoActor(QString actorID);
 
 private slots:
     void on_action_triggered();
@@ -153,6 +157,8 @@ private slots:
 
     void on_action_14_triggered();
 
+    void on_action_15_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void sendStudioNames(QList <QString>);
@@ -169,6 +175,8 @@ signals:
     void sendInformationProtagonistUpd(QString, QString, QList <QString>);
     void sendOutputDirector(QJsonArray);
     void sendOutputStudio(QJsonArray);
+    void sendOutputActor(QJsonArray);
+    void sendOutputActorPortrait(QByteArray);
 
 private:
     Ui::MainWindow *ui;

@@ -586,6 +586,19 @@ void MainWindow::deleteStudio(QString id)
     }
 }
 
+void MainWindow::requestPhotoActor(QString actorID)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"outputActor\",\"params\":\"requestSizePhotoActor\",\"id\":\"" + actorID.toUtf8() + "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1526,6 +1539,29 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"outputStudio\",\"params\":\"findAllStudio\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "resultAllActor"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+
+                outputActorWin = new outputActor();
+
+                connect(this,SIGNAL(sendOutputActor(QJsonArray)), outputActorWin, SLOT(acceptActor(QJsonArray)));
+                emit sendOutputActor(docArr);
+
+                outputActorWin->setWindowTitle("Вывод актёров");
+                outputActorWin->show();
+
+                connect(outputActorWin,SIGNAL(requestPhotoActor(QString)), this, SLOT(requestPhotoActor(QString)));
+
+                //connect(outputStudioWin,SIGNAL(sendDeleteStudioSignal(QString)), this, SLOT(deleteStudio(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "sizePhotoActor"))
+            {
+                requireSize = doc.object().value("length").toInt();
+                actorPortraitOutputArrives = true;
+                socket->write("{\"type\":\"outputActor\",\"params\":\"findPhotoActor\"}");
+                socket->waitForBytesWritten(500);
+            }
             else
             {
                 complexData = true;
@@ -1661,6 +1697,23 @@ void MainWindow::socketReady()
                         this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QString, QPixmap)));
                 connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString, QString)),
                         this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString, QString)));
+            }
+            else
+            {
+                complexData = true;
+                socketReady();
+            }
+        }
+        else if (actorPortraitOutputArrives)
+        {
+            //qDebug() << "Сколько пришло: " << Data.size() << ", сколько должно быть: " << requireSize;
+            if (requireSize == Data.size())
+            {
+
+                connect(this,SIGNAL(sendOutputActorPortrait(QByteArray)), outputActorWin, SLOT(acceptActorPortrait(QByteArray)));
+                emit sendOutputActorPortrait(Data);
+
+                actorPortraitOutputArrives = false;
             }
             else
             {
@@ -1846,6 +1899,13 @@ void MainWindow::on_action_13_triggered()
 void MainWindow::on_action_14_triggered()
 {
     socket->write("{\"type\":\"outputStudio\",\"params\":\"findAllStudio\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_15_triggered()
+{
+    socket->write("{\"type\":\"outputActor\",\"params\":\"findAllActor\"}");
     socket->waitForBytesWritten(500);
 }
 

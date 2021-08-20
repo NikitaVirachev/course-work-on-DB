@@ -1686,6 +1686,65 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "findAllActor"))
+        {
+            itog = "{\"type\":\"outputActor\",\"params\":\"resultAllActor\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllActor = new QSqlQuery(db);
+                if (queryAllActor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor"))
+                {
+                    while (queryAllActor->next())
+                    {
+
+                        itog.append("{\"actorID\":\""+queryAllActor->value(0).toString()+
+                                    "\",\"firstName\":\""+queryAllActor->value(1).toString()+
+                                    "\",\"lastName\":\""+queryAllActor->value(2).toString()+
+                                    "\",\"dateOfBirth\":\""+queryAllActor->value(3).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "requestSizePhotoActor"))
+        {
+            QSqlQuery* queryActorPortrait = new QSqlQuery(db);
+            if (queryActorPortrait->exec("SELECT ActorPortrait FROM Actor WHERE ActorID = " + doc.object().value("id").toString()))
+            {
+                queryActorPortrait->first();
+                baActorPortrait = queryActorPortrait->value(0).toByteArray();
+
+                if (baActorPortrait != "")
+                {
+                    socket->write("{\"type\":\"outputActor\",\"params\":\"sizePhotoActor\",\"length\":"+QByteArray::number(baActorPortrait.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+                else
+                {
+                    QString str = "NULL";
+                    socket->write("{\"type\":\"outputActor\",\"params\":\"sizePhotoActor\",\"length\":"+QByteArray::number(str.size())+"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+
+        }
+        else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "findPhotoActor"))
+        {
+            if (baActorPortrait != "")
+            {
+                socket->write(baActorPortrait);
+                socket->waitForBytesWritten(500);
+            }
+            else
+            {
+                socket->write("NULL");
+                socket->waitForBytesWritten(500);
+            }
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
