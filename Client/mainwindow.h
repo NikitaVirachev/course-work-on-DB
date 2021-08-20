@@ -23,6 +23,7 @@
 #include "updateactor.h"
 #include "updateprotagonist.h"
 #include "outputdirector.h"
+#include "outputstudio.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,6 +49,7 @@ public:
     updateActor* updateActorWin;
     updateProtagonist* updateProtagonistWin;
     outputDirector* outputDirectorWin;
+    outputStudio* outputStudioWin;
 
     QTcpSocket* socket;
     QByteArray Data;
@@ -148,6 +150,8 @@ private slots:
 
     void on_action_13_triggered();
 
+    void on_action_14_triggered();
+
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
     void sendStudioNames(QList <QString>);
@@ -163,6 +167,7 @@ signals:
     void sendUpdateProtagonist(QList <QString>);
     void sendInformationProtagonistUpd(QString, QString, QList <QString>);
     void sendOutputDirector(QJsonArray);
+    void sendOutputStudio(QJsonArray);
 
 private:
     Ui::MainWindow *ui;

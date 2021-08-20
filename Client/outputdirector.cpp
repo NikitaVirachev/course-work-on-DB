@@ -69,9 +69,9 @@ void outputDirector::acceptDirector(QJsonArray docArr)
 
         director->appendRow(listDirector);
         listDirector.clear();
-
-        ui->tableView->setModel(director);
     }
+    ui->tableView->setModel(director);
+
     ui->progressBar->hide();
     flagContextMenu = true;
 }

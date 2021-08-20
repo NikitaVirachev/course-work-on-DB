@@ -1640,6 +1640,26 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "outputStudio") && (doc.object().value("params").toString() == "findAllStudio"))
+        {
+            itog = "{\"type\":\"outputStudio\",\"params\":\"resultAllStudio\",\"result\":[";
+            if (db.isOpen())
+            {
+                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                {
+                    while (queryAllStudioName->next())
+                    {
+                        itog.append("{\"studioName\":\""+queryAllStudioName->value(0).toString()+
+                                    "\"},");
+                    }
+                    itog.remove(itog.length()-1,1);
+                }
+            }
+            itog.append("]}");
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();

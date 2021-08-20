@@ -1483,6 +1483,20 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"outputDirector\",\"params\":\"findAllDirector\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "outputStudio") && (doc.object().value("params").toString() == "resultAllStudio"))
+            {
+                QJsonArray docArr = doc.object().value("result").toArray();
+
+                outputStudioWin = new outputStudio();
+
+                connect(this,SIGNAL(sendOutputStudio(QJsonArray)), outputStudioWin, SLOT(acceptStudio(QJsonArray)));
+                emit sendOutputStudio(docArr);
+
+                outputStudioWin->setWindowTitle("Вывод киностудий");
+                outputStudioWin->show();
+
+                //connect(outputDirectorWin,SIGNAL(sendDeleteDirectorSignal(QString)), this, SLOT(deleteDirector(QString)));
+            }
             else
             {
                 complexData = true;
@@ -1796,6 +1810,13 @@ void MainWindow::on_action_12_triggered()
 void MainWindow::on_action_13_triggered()
 {
     socket->write("{\"type\":\"outputDirector\",\"params\":\"findAllDirector\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_14_triggered()
+{
+    socket->write("{\"type\":\"outputStudio\",\"params\":\"findAllStudio\"}");
     socket->waitForBytesWritten(500);
 }
 
