@@ -128,6 +128,7 @@ public slots:
     void deleteStudio(QString);
     void requestPhotoActor(QString actorID);
     void deleteActor(QString);
+    void deleteProtagonist(QString);
 
 private slots:
     void on_action_triggered();

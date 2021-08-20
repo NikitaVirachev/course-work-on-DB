@@ -31,8 +31,11 @@ public:
 
 public slots:
     void acceptProtagonist(QJsonArray);
-    //void customMenuReq(QPoint);
-    //void deleteDirector();
+    void customMenuReq(QPoint);
+    void deleteProtagonist();
+
+signals:
+    void sendDeleteProtagonistSignal(QString);
 
 private:
     Ui::outputProtagonist *ui;

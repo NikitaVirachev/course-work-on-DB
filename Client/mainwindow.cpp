@@ -614,6 +614,21 @@ void MainWindow::deleteActor(QString id)
     }
 }
 
+void MainWindow::deleteProtagonist(QString id)
+{
+    if (socket->isOpen())
+    {
+        socket->write("{\"type\":\"deleteProtagonist\",\"params\":\"sendID\""
+                      ",\"id\":\"" + id.toUtf8() +
+                      "\"}");
+        socket->waitForBytesWritten(500);
+    }
+    else
+    {
+        QMessageBox::information(this,"Инофрмация","Соединение не установлено");
+    }
+}
+
 void MainWindow::socketDisc()
 {
     socket->deleteLater();
@@ -1603,7 +1618,21 @@ void MainWindow::socketReady()
                 outputProtagonistWin->setWindowTitle("Вывод главных героев");
                 outputProtagonistWin->show();
 
-                //connect(outputActorWin,SIGNAL(sendDeleteActorSignal(QString)), this, SLOT(deleteActor(QString)));
+                connect(outputProtagonistWin,SIGNAL(sendDeleteProtagonistSignal(QString)), this, SLOT(deleteProtagonist(QString)));
+            }
+            else if ((doc.object().value("type").toString() == "deleteProtagonist") && (doc.object().value("params").toString() == "protagonistSuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Информация", "Главный герой успешно удалён");
+                outputProtagonistWin->close();
+                socket->write("{\"type\":\"outputProtagonist\",\"params\":\"findAllProtagonist\"}");
+                socket->waitForBytesWritten(500);
+            }
+            else if ((doc.object().value("type").toString() == "deleteProtagonist") && (doc.object().value("params").toString() == "protagonistUnsuccessfullyDeleted"))
+            {
+                QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
+                outputProtagonistWin->close();
+                socket->write("{\"type\":\"outputProtagonist\",\"params\":\"findAllProtagonist\"}");
+                socket->waitForBytesWritten(500);
             }
             else
             {

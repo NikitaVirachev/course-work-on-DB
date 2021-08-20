@@ -8,9 +8,9 @@ outputProtagonist::outputProtagonist(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-    //    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
-    //flagContextMenu = false;
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
+    flagContextMenu = false;
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
 }
@@ -63,4 +63,27 @@ void outputProtagonist::acceptProtagonist(QJsonArray docArr)
 
     ui->progressBar->hide();
     flagContextMenu = true;
+}
+
+void outputProtagonist::customMenuReq(QPoint pos)
+{
+    if (flagContextMenu)
+    {
+        QModelIndex index = ui->tableView->indexAt(pos);
+        globalID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toString();
+
+        QMenu* menu = new QMenu(this);
+        QAction* deleteProtagonist = new QAction("Удалить главного героя", this);
+        connect(deleteProtagonist, SIGNAL(triggered()), this, SLOT(deleteProtagonist()));
+
+        menu->addAction(deleteProtagonist);
+        menu->popup(ui->tableView->viewport()->mapToGlobal(pos));
+    }
+}
+
+void outputProtagonist::deleteProtagonist()
+{
+    flagContextMenu = false;
+    ui->progressBar->show();
+    emit sendDeleteProtagonistSignal(globalID);
 }

@@ -194,9 +194,9 @@ void socketThread::mySocketReady()
         Data.append(socket->readAll());
         complexData = false;
     }
-
+    //qDebug() << "Data: " << Data;
     doc = QJsonDocument::fromJson(Data, &docError);
-
+    //qDebug() << "doc: " << doc;
     if ((docError.errorString()=="no error occurred") && (!posterArrives) && (!actorPortraitArrives) && (!scenarioArrives))
     {        
         if ((doc.object().value("type").toString() == "connection") && (doc.object().value("params").toString() == "connectionInformation"))
@@ -1792,6 +1792,32 @@ void socketThread::mySocketReady()
             itog.append("]}");
             socket->write(itog);
             socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "deleteProtagonist") && (doc.object().value("params").toString() == "sendID"))
+        {
+            if (checkProtagonistID(doc.object().value("id").toString()))
+            {
+                QSqlQuery* query = new QSqlQuery(db);
+                query->prepare("DELETE FROM Protagonist WHERE ProtagonistID=:ProtagonistID");
+                query->bindValue(":ProtagonistID", doc.object().value("id").toString());
+
+                if(!query->exec())
+                {
+                    qDebug() << "Запрос на удаление главного героя составлен неверно!";
+                }
+                else
+                {
+                    qDebug()<<"Клиент " << socketDescriptor << " удалил главного героя с id = " << doc.object().value("id").toString();
+                    socket->write("{\"type\":\"deleteProtagonist\",\"params\":\"protagonistSuccessfullyDeleted\"}");
+                    socket->waitForBytesWritten(500);
+                }
+            }
+            else
+            {
+                qDebug()<<"Клиент " << socketDescriptor << " не смог удалить главного героя с id = " << doc.object().value("id").toString();
+                socket->write("{\"type\":\"deleteProtagonist\",\"params\":\"protagonistUnsuccessfullyDeleted\"}");
+                socket->waitForBytesWritten(500);
+            }
         }
         else
         {
