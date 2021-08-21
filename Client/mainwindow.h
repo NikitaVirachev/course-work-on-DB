@@ -91,6 +91,8 @@ public:
     QString updActorFirstName;
     QString updActorLastName;
     QString updActorDateOfBirth;
+    QString globalActorID;
+    QJsonArray buffInform;
 
     QJsonDocument doc;
     QJsonParseError docError;
@@ -182,7 +184,7 @@ signals:
     void sendOutputDirector(QJsonArray);
     void sendOutputStudio(QJsonArray);
     void sendOutputActor(QJsonArray);
-    void sendOutputActorPortrait(QByteArray);
+    void sendOutputActorPortrait(QByteArray, QJsonArray);
     void sendOutputProtagonist(QJsonArray);
 
 private:

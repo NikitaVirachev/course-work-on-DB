@@ -1707,6 +1707,44 @@ void socketThread::mySocketReady()
                 }
             }
             itog.append("]}");
+            qDebug()<<"Клиент " << socketDescriptor << " запрашивает информацию об актёрах";
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
+        else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "informationAboutFilms"))
+        {
+            itog = "{\"type\":\"outputActor\",\"params\":\"resultInformationAboutFilms\",\"result\":[";
+            QSqlQuery* movies = new QSqlQuery(db);
+            movies->prepare("SELECT * FROM MovieByActor(:actorID)");
+            movies->bindValue(":actorID", doc.object().value("id").toString());
+            if (movies->exec())
+            {
+                while (movies->next())
+                {
+                    itog.append("{\"movieID\":\""+movies->value(0).toString()+
+                                "\",\"title\":\""+movies->value(1).toString()+
+                                "\",\"releaseDate\":\""+movies->value(2).toString()+
+                                "\",\"boxOffice\":\""+movies->value(3).toString()+
+                                "\",\"budget\":\""+movies->value(4).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+            else
+            {
+                qDebug()<<"Запрос на фильмы не выполнен";
+            }
+
+            delete movies;
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+            qDebug()<<"Клиент " << socketDescriptor << " запрашивает информацию о фильмах, связанных с актёром с id = " << doc.object().value("id").toString();
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }

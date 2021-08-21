@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>862</width>
-    <height>280</height>
+    <height>521</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>250</y>
+     <y>490</y>
      <width>861</width>
      <height>23</height>
     </rect>
@@ -63,7 +63,7 @@
      <x>670</x>
      <y>50</y>
      <width>171</width>
-     <height>181</height>
+     <height>191</height>
     </rect>
    </property>
    <property name="text">
@@ -89,6 +89,37 @@
    </property>
    <property name="text">
     <string>Фото актёра</string>
+   </property>
+  </widget>
+  <widget class="QTableView" name="tableView_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>290</y>
+     <width>821</width>
+     <height>192</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>260</y>
+     <width>821</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Информация о фильмах, связанных с актёром</string>
    </property>
   </widget>
  </widget>

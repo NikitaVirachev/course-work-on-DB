@@ -8,6 +8,7 @@ outputActor::outputActor(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView_2->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
     flagContextMenu = false;
@@ -77,8 +78,70 @@ void outputActor::acceptActor(QJsonArray docArr)
     flagContextMenu = true;
 }
 
-void outputActor::acceptActorPortrait(QByteArray actorPortrait)
+void outputActor::acceptActorPortrait(QByteArray actorPortrait, QJsonArray docArr)
 {
+    movies->clear();
+    QStringList listHeaderMovies;
+    listHeaderMovies.append("Номер фильма");
+    listHeaderMovies.append("Название фильма");
+    listHeaderMovies.append("Дата выхода");
+    listHeaderMovies.append("Сборы");
+    listHeaderMovies.append("Бюджет");
+    movies->setHorizontalHeaderLabels(listHeaderMovies);
+
+    QList<QStandardItem*> listMovie;
+
+    QStandardItem* title;
+    QStandardItem* releaseDate;
+    QStandardItem* boxOffice;
+    QStandardItem* budget;
+
+    for (int i = 0; i < docArr.count(); ++i)
+    {
+        QStandardItem* movieID = new QStandardItem(docArr.at(i).toObject().value("movieID").toString());
+        if (docArr.at(i).toObject().value("title").toString() != "")
+        {
+            title = new QStandardItem(docArr.at(i).toObject().value("title").toString());
+        }
+        else
+        {
+            title = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("releaseDate").toString() != "")
+        {
+            releaseDate = new QStandardItem(docArr.at(i).toObject().value("releaseDate").toString());
+        }
+        else
+        {
+            releaseDate = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("boxOffice").toString() != "0")
+        {
+            boxOffice = new QStandardItem(docArr.at(i).toObject().value("boxOffice").toString());
+        }
+        else
+        {
+            boxOffice = new QStandardItem("NULL");
+        }
+        if (docArr.at(i).toObject().value("budget").toString() != "0")
+        {
+            budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
+        }
+        else
+        {
+            budget = new QStandardItem("NULL");
+        }
+        listMovie.append(movieID);
+        listMovie.append(title);
+        listMovie.append(releaseDate);
+        listMovie.append(boxOffice);
+        listMovie.append(budget);
+
+        movies->appendRow(listMovie);
+        listMovie.clear();
+    }
+    ui->tableView_2->setModel(movies);
+
     if (actorPortrait != "NULL")
     {
         QPixmap outPortrait = QPixmap();

@@ -590,7 +590,8 @@ void MainWindow::requestPhotoActor(QString actorID)
 {
     if (socket->isOpen())
     {
-        socket->write("{\"type\":\"outputActor\",\"params\":\"requestSizePhotoActor\",\"id\":\"" + actorID.toUtf8() + "\"}");
+        globalActorID = actorID;
+        socket->write("{\"type\":\"outputActor\",\"params\":\"informationAboutFilms\",\"id\":\"" + globalActorID.toUtf8() + "\"}");
         socket->waitForBytesWritten(500);
     }
     else
@@ -649,7 +650,7 @@ void MainWindow::socketReady()
             Data.append(socket->readAll());
             complexData = false;
         }
-
+        //qDebug() << Data;
         doc = QJsonDocument::fromJson(Data, &docError);
 
         if ((docError.errorString()=="no error occurred") && (!pictureArrives) && (!actorPortraitArrives) && (!scenarioArrives) && (!updPosterArrives) && (!updScenarioArrives))
@@ -1585,6 +1586,13 @@ void MainWindow::socketReady()
 
                 connect(outputActorWin,SIGNAL(sendDeleteActorSignal(QString)), this, SLOT(deleteActor(QString)));
             }
+            else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "resultInformationAboutFilms"))
+            {
+                buffInform = doc.object().value("result").toArray();
+
+                socket->write("{\"type\":\"outputActor\",\"params\":\"requestSizePhotoActor\",\"id\":\"" + globalActorID.toUtf8() + "\"}");
+                socket->waitForBytesWritten(500);
+            }
             else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "sizePhotoActor"))
             {
                 requireSize = doc.object().value("length").toInt();
@@ -1782,8 +1790,8 @@ void MainWindow::socketReady()
             if (requireSize == Data.size())
             {
 
-                connect(this,SIGNAL(sendOutputActorPortrait(QByteArray)), outputActorWin, SLOT(acceptActorPortrait(QByteArray)));
-                emit sendOutputActorPortrait(Data);
+                connect(this,SIGNAL(sendOutputActorPortrait(QByteArray, QJsonArray)), outputActorWin, SLOT(acceptActorPortrait(QByteArray, QJsonArray)));
+                emit sendOutputActorPortrait(Data, buffInform);
 
                 actorPortraitOutputArrives = false;
             }

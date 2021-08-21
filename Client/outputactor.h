@@ -25,13 +25,14 @@ public:
     ~outputActor();
 
     QStandardItemModel* actor = new QStandardItemModel(nullptr);
+    QStandardItemModel* movies = new QStandardItemModel(nullptr);
 
     bool flagContextMenu;
     QString globalID;
 
 public slots:
     void acceptActor(QJsonArray);
-    void acceptActorPortrait(QByteArray actorPortrait);
+    void acceptActorPortrait(QByteArray actorPortrait, QJsonArray docArr);
     void customMenuReq(QPoint);
     void deleteActor();
 
