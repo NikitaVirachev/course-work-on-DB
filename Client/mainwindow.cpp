@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent):
     ui->menu_2->setEnabled(false);
     ui->menu_3->setEnabled(false);
     ui->menu_4->setEnabled(false);
+    ui->menu_5->setEnabled(false);
     ui->action_3->setEnabled(false);
 
     socket = new QTcpSocket(this);
@@ -662,6 +663,7 @@ void MainWindow::socketReady()
                 ui->menu_2->setEnabled(true);
                 ui->menu_3->setEnabled(true);
                 ui->menu_4->setEnabled(true);
+                ui->menu_5->setEnabled(true);
                 ui->action_3->setEnabled(true);
                 ui->action->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Соединение установлено");
@@ -1643,6 +1645,19 @@ void MainWindow::socketReady()
                 socket->write("{\"type\":\"outputProtagonist\",\"params\":\"findAllProtagonist\"}");
                 socket->waitForBytesWritten(500);
             }
+            else if ((doc.object().value("type").toString() == "storedProcedures") && (doc.object().value("params").toString() == "resultStoredProcedures"))
+            {
+                QJsonArray docArr = doc.object().value("resultProcedures1").toArray();
+                QJsonArray docArr2 = doc.object().value("resultProcedures2").toArray();
+
+                storedProceduresWin = new storedProcedures();
+
+                connect(this,SIGNAL(sendStoredProcedures(QJsonArray, QJsonArray)), storedProceduresWin, SLOT(accept(QJsonArray, QJsonArray)));
+                emit sendStoredProcedures(docArr, docArr2);
+
+                storedProceduresWin->setWindowTitle("Хранимые процедуры");
+                storedProceduresWin->show();
+            }
             else
             {
                 complexData = true;
@@ -1994,6 +2009,13 @@ void MainWindow::on_action_15_triggered()
 void MainWindow::on_action_16_triggered()
 {
     socket->write("{\"type\":\"outputProtagonist\",\"params\":\"findAllProtagonist\"}");
+    socket->waitForBytesWritten(500);
+}
+
+
+void MainWindow::on_action_17_triggered()
+{
+    socket->write("{\"type\":\"storedProcedures\",\"params\":\"findStoredProcedures\"}");
     socket->waitForBytesWritten(500);
 }
 

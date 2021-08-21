@@ -1887,6 +1887,43 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
         }
+        else if ((doc.object().value("type").toString() == "storedProcedures") && (doc.object().value("params").toString() == "findStoredProcedures"))
+        {
+            itog = "{\"type\":\"storedProcedures\",\"params\":\"resultStoredProcedures\",\"resultProcedures1\":[";
+            QSqlQuery* query1 = new QSqlQuery(db);
+            if (query1->exec("EXEC MostProductiveYear"))
+            {
+                while (query1->next())
+                {
+                    itog.append("{\"releaseDate\":\""+query1->value(0).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[],\"resultProcedures2\":[");
+            }
+            else
+            {
+                itog.append("],\"resultProcedures2\":[");
+            }
+
+            QSqlQuery* query2 = new QSqlQuery(db);
+            if (query2->exec("EXEC InformationAboutMovies"))
+            {
+                query2->first();
+                itog.append("{\"averageBudget\":\""+query2->value(0).toString()+
+                            "\",\"averageBoxOffice\":\""+query2->value(1).toString()+
+                            "\"}");
+            }
+            itog.append("]}");
+
+            qDebug()<<"Клиент " << socketDescriptor << " воспользовался процедурами";
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
