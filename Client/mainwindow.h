@@ -185,7 +185,7 @@ signals:
     void sendOutputStudio(QJsonArray);
     void sendOutputActor(QJsonArray);
     void sendOutputActorPortrait(QByteArray, QJsonArray);
-    void sendOutputProtagonist(QJsonArray);
+    void sendOutputProtagonist(QJsonArray, QJsonArray);
 
 private:
     Ui::MainWindow *ui;

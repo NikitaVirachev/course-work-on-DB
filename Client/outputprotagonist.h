@@ -25,12 +25,13 @@ public:
     ~outputProtagonist();
 
     QStandardItemModel* protagonist = new QStandardItemModel(nullptr);
+    QStandardItemModel* protagonistAndActor = new QStandardItemModel(nullptr);
 
     bool flagContextMenu;
     QString globalID;
 
 public slots:
-    void acceptProtagonist(QJsonArray);
+    void acceptProtagonist(QJsonArray, QJsonArray);
     void customMenuReq(QPoint);
     void deleteProtagonist();
 

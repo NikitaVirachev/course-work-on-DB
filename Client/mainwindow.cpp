@@ -1617,11 +1617,12 @@ void MainWindow::socketReady()
             else if ((doc.object().value("type").toString() == "outputProtagonist") && (doc.object().value("params").toString() == "resultAllProtagonist"))
             {
                 QJsonArray docArr = doc.object().value("result").toArray();
+                QJsonArray docArr2 = doc.object().value("resultView").toArray();
 
                 outputProtagonistWin = new outputProtagonist();
 
-                connect(this,SIGNAL(sendOutputProtagonist(QJsonArray)), outputProtagonistWin, SLOT(acceptProtagonist(QJsonArray)));
-                emit sendOutputProtagonist(docArr);
+                connect(this,SIGNAL(sendOutputProtagonist(QJsonArray, QJsonArray)), outputProtagonistWin, SLOT(acceptProtagonist(QJsonArray, QJsonArray)));
+                emit sendOutputProtagonist(docArr, docArr2);
 
                 outputProtagonistWin->setWindowTitle("Вывод главных героев");
                 outputProtagonistWin->show();

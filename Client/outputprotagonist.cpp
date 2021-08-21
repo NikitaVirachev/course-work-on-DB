@@ -8,6 +8,7 @@ outputProtagonist::outputProtagonist(QWidget *parent) :
     ui->setupUi(this);
 
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableView_2->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenuReq(QPoint)));
     flagContextMenu = false;
@@ -20,7 +21,7 @@ outputProtagonist::~outputProtagonist()
     delete ui;
 }
 
-void outputProtagonist::acceptProtagonist(QJsonArray docArr)
+void outputProtagonist::acceptProtagonist(QJsonArray docArr, QJsonArray docArr2)
 {
     protagonist->clear();
     QStringList listHeaderProtagonist;
@@ -60,6 +61,53 @@ void outputProtagonist::acceptProtagonist(QJsonArray docArr)
         listProtagonist.clear();
     }
     ui->tableView->setModel(protagonist);
+
+    protagonistAndActor->clear();
+    QStringList listHeaderProtagonistAndActor;
+    listHeaderProtagonistAndActor.append("Главный герой");
+    listHeaderProtagonistAndActor.append("Имя актёра");
+    listHeaderProtagonistAndActor.append("Фамилия актёра");
+    protagonistAndActor->setHorizontalHeaderLabels(listHeaderProtagonistAndActor);
+
+    QList<QStandardItem*> listProtagonistAndActor;
+    QStandardItem* name;
+    QStandardItem* firstName;
+    QStandardItem* lastName;
+
+    for (int i = 0; i < docArr2.count(); ++i)
+    {
+        if (docArr2.at(i).toObject().value("nameProtagonist").toString() == "")
+        {
+            name = new QStandardItem("NULL");
+        }
+        else
+        {
+            name = new QStandardItem(docArr2.at(i).toObject().value("nameProtagonist").toString());
+        }
+        if (docArr2.at(i).toObject().value("firstName").toString() == "")
+        {
+            firstName = new QStandardItem("NULL");
+        }
+        else
+        {
+            firstName = new QStandardItem(docArr2.at(i).toObject().value("firstName").toString());
+        }
+        if (docArr2.at(i).toObject().value("lastName").toString() == "")
+        {
+            lastName = new QStandardItem("NULL");
+        }
+        else
+        {
+            lastName = new QStandardItem(docArr2.at(i).toObject().value("lastName").toString());
+        }
+        listProtagonistAndActor.append(name);
+        listProtagonistAndActor.append(firstName);
+        listProtagonistAndActor.append(lastName);
+
+        protagonistAndActor->appendRow(listProtagonistAndActor);
+        listProtagonistAndActor.clear();
+    }
+    ui->tableView_2->setModel(protagonistAndActor);
 
     ui->progressBar->hide();
     flagContextMenu = true;

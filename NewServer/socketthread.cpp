@@ -1827,7 +1827,37 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("]}");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[],\"resultView\":[");
+            }
+            else
+            {
+                itog.append("],\"resultView\":[");
+            }
+
+            QSqlQuery* view = new QSqlQuery(db);
+            if (view->exec("SELECT * FROM ProtagonistAndActor"))
+            {
+                while (view->next())
+                {
+
+                    itog.append("{\"nameProtagonist\":\""+view->value(0).toString()+
+                                "\",\"firstName\":\""+view->value(1).toString()+
+                                "\",\"lastName\":\""+view->value(2).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
