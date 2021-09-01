@@ -21,6 +21,8 @@ SOURCES += \
     outputdirector.cpp \
     outputprotagonist.cpp \
     outputstudio.cpp \
+    paint.cpp \
+    paintscene.cpp \
     storedprocedures.cpp \
     updateactor.cpp \
     updatedirector.cpp \
@@ -40,6 +42,8 @@ HEADERS += \
     outputdirector.h \
     outputprotagonist.h \
     outputstudio.h \
+    paint.h \
+    paintscene.h \
     storedprocedures.h \
     updateactor.h \
     updatedirector.h \
@@ -59,6 +63,7 @@ FORMS += \
     outputdirector.ui \
     outputprotagonist.ui \
     outputstudio.ui \
+    paint.ui \
     storedprocedures.ui \
     updateactor.ui \
     updatedirector.ui \

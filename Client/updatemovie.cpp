@@ -16,6 +16,7 @@ updateMovie::updateMovie(QWidget *parent) :
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
+    ui->pushButton_4->setEnabled(false);
     ui->progressBar->setRange(0,0);
     ui->progressBar->hide();
     ui->comboBox->setEnabled(false);
@@ -121,6 +122,7 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
         int h = ui->label_10->height();
         ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
+        ui->pushButton_4->setEnabled(true);
     }
     else
     {
@@ -304,6 +306,7 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
     if (arg1 == 2)
     {
         ui->pushButton->setEnabled(false);
+        ui->pushButton_4->setEnabled(false);
         ui->label_10->clear();
         posterFlag = true;
     }
@@ -313,7 +316,20 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
         int h = ui->label_10->height();
         ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
+        ui->pushButton_4->setEnabled(true);
         posterFlag = false;
     }
+}
+
+
+void updateMovie::on_pushButton_4_clicked()
+{
+    paintWin = new Paint();
+
+    connect(this,SIGNAL(sendImageForChange(QPixmap)), paintWin, SLOT(acceptImage(QPixmap)));
+    emit sendImageForChange(outPoster);
+
+    paintWin->setWindowTitle("Изменить постер");
+    paintWin->show();
 }
 

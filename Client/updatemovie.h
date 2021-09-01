@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "paint.h"
 
 namespace Ui {
 class updateMovie;
@@ -28,6 +29,8 @@ public:
     QList<QString> localListMovieID;
     QString localScenario;
 
+    Paint* paintWin;
+
 public slots:
     void acceptMovieID(QList <QString>);
     void acceptInformationMovieUpd(QString, QString, QString, QString, QString, QString, QString, QByteArray, QByteArray, QList <QString>, QList <QString>, QList <QString>);
@@ -47,12 +50,15 @@ private slots:
 
     void on_checkBox_2_stateChanged(int arg1);
 
+    void on_pushButton_4_clicked();
+
 signals:
     void sendMovieIDSignalUpd(QString);
     void sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap);
     void sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString);
     void sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
     void sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString);
+    void sendImageForChange(QPixmap);
 
 private:
     Ui::updateMovie *ui;
