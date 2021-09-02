@@ -45,19 +45,26 @@ void Paint::createActions()
 
 void Paint::createMenus()
 {
+    QMenuBar* menuBar = new QMenuBar();
     optionMenu = new QMenu(tr("&Опции"), this);
+    menuBar->addMenu(optionMenu);
     optionMenu->addAction(saveAsActs);
     optionMenu->addAction(penColorAct);
     optionMenu->addAction(penWidthAct);
     optionMenu->addSeparator();
     optionMenu->addAction(exitAct);
-    this->layout()->setMenuBar(optionMenu);
+    this->layout()->setMenuBar(menuBar);
 }
 
 void Paint::acceptImage(QPixmap img)
 {
     image = img;
     scene->addPixmap(image);
+    scene->setSceneRect(0, 0, image.width(), image.height());
+    ui->graphicsView->setMinimumWidth(image.width());
+    ui->graphicsView->setMaximumWidth(image.width());
+    ui->graphicsView->setMinimumHeight(image.height());
+    ui->graphicsView->setMaximumHeight(image.height());
 }
 
 
@@ -78,16 +85,29 @@ void Paint::showEvent(QShowEvent *)
 
 void Paint::save()
 {
-
+    QPixmap pixMap = this->ui->graphicsView->grab();
+    emit sendNewImage(pixMap);
 }
 
 void Paint::penColor()
 {
-
+    QColor newColor = QColorDialog::getColor(scene->penColor());
+    if(newColor.isValid()){
+        scene->setPenColor(newColor);
+    }
 }
 
 void Paint::penWidth()
 {
-
+    bool ok;
+    // min=1, max=50, step=1
+    int newWidth = QInputDialog::getInt(this,
+                                        tr("Scribble"),
+                                        tr("Выберете размер кисти: "),
+                                        scene->penWidth(),
+                                        1, 50, 1, &ok);
+    if(ok){
+        scene->setPenWidth(newWidth);
+    }
 }
 

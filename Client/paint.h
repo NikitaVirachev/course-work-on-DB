@@ -4,7 +4,8 @@
 #include <QWidget>
 #include <QResizeEvent>
 #include <QMenuBar>
-
+#include <QColorDialog>
+#include <QInputDialog>
 
 #include <paintscene.h>
 
@@ -51,6 +52,9 @@ private slots:
 
 public slots:
     void acceptImage(QPixmap);
+
+signals:
+    void sendNewImage(QPixmap);
 };
 
 #endif // PAINT_H

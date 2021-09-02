@@ -141,6 +141,17 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
     ui->progressBar->hide();
 }
 
+void updateMovie::getNewPoster(QPixmap newImage)
+{
+    paintWin->close();
+    posterFlag = true;
+    outPoster = newImage;
+    newPoster = newImage;
+    int w = ui->label_10->width();
+    int h = ui->label_10->height();
+    ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
+}
+
 void updateMovie::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (ui->comboBox->currentText() != " ")
@@ -254,6 +265,7 @@ void updateMovie::on_pushButton_clicked()
     QPixmap newPixmap;
     newPixmap.load(fileName);
     newPoster = newPixmap;
+    outPoster = newPixmap;
     int w = ui->label_10->width();
     int h = ui->label_10->height();
     ui->label_10->setPixmap(newPixmap.scaled(w,h,Qt::KeepAspectRatio));
@@ -308,7 +320,7 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
         ui->pushButton->setEnabled(false);
         ui->pushButton_4->setEnabled(false);
         ui->label_10->clear();
-        posterFlag = true;
+        posterFlag = false;
     }
     else
     {
@@ -317,7 +329,7 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
         ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
         ui->pushButton_4->setEnabled(true);
-        posterFlag = false;
+        posterFlag = true;
     }
 }
 
@@ -328,6 +340,9 @@ void updateMovie::on_pushButton_4_clicked()
 
     connect(this,SIGNAL(sendImageForChange(QPixmap)), paintWin, SLOT(acceptImage(QPixmap)));
     emit sendImageForChange(outPoster);
+
+    connect(paintWin,SIGNAL(sendNewImage(QPixmap)),
+            this, SLOT(getNewPoster(QPixmap)));
 
     paintWin->setWindowTitle("Изменить постер");
     paintWin->show();

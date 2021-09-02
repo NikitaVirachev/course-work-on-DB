@@ -73,6 +73,17 @@ void updateActor::acceptInformationActorUpd(QString firstName, QString lastName,
     ui->progressBar->hide();
 }
 
+void updateActor::getNewPortrait(QPixmap newImage)
+{
+    paintWin->close();
+    portraitFlag = true;
+    outPortrait = newImage;
+    newActorPortrait = newImage;
+    int w = ui->label_7->width();
+    int h = ui->label_7->height();
+    ui->label_7->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
+}
+
 void updateActor::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (ui->comboBox->currentText() != " ")
@@ -95,6 +106,7 @@ void updateActor::on_pushButton_clicked()
     QPixmap newPixmap;
     newPixmap.load(fileName);
     newActorPortrait = newPixmap;
+    outPortrait = newPixmap;
     int w = ui->label_7->width();
     int h = ui->label_7->height();
     ui->label_7->setPixmap(newPixmap.scaled(w,h,Qt::KeepAspectRatio));
@@ -191,7 +203,7 @@ void updateActor::on_checkBox_2_stateChanged(int arg1)
     {
         ui->pushButton->setEnabled(false);
         ui->label_7->clear();
-        portraitFlag = true;
+        portraitFlag = false;
     }
     else
     {
@@ -199,7 +211,21 @@ void updateActor::on_checkBox_2_stateChanged(int arg1)
         int h = ui->label_7->height();
         ui->label_7->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
-        portraitFlag = false;
+        portraitFlag = true;
     }
 }
 
+
+void updateActor::on_pushButton_3_clicked()
+{
+    paintWin = new Paint();
+
+    connect(this,SIGNAL(sendImageForChange(QPixmap)), paintWin, SLOT(acceptImage(QPixmap)));
+    emit sendImageForChange(outPortrait);
+
+    connect(paintWin,SIGNAL(sendNewImage(QPixmap)),
+            this, SLOT(getNewPortrait(QPixmap)));
+
+    paintWin->setWindowTitle("Изменить портрет");
+    paintWin->show();
+}

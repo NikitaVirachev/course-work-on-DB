@@ -34,6 +34,7 @@ public:
 public slots:
     void acceptMovieID(QList <QString>);
     void acceptInformationMovieUpd(QString, QString, QString, QString, QString, QString, QString, QByteArray, QByteArray, QList <QString>, QList <QString>, QList <QString>);
+    void getNewPoster(QPixmap);
 
 private slots:
     void on_comboBox_currentIndexChanged(const QString &arg1);
