@@ -177,8 +177,6 @@ void socketThread::downloadInformationAboutFilms()
     {
         qDebug()<<"Запрос на фильмы не выполнен";
     }
-
-    delete movies;
 }
 
 void socketThread::mySocketReady()
@@ -222,7 +220,14 @@ void socketThread::mySocketReady()
                 qDebug()<<"Соединение с БД НЕ установлено";
             }
 
-            itog.append("]}");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
 
             socket->write(itog);
             socket->waitForBytesWritten(500);
@@ -536,7 +541,15 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("],\"allProtagonistID\":[");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[],\"allProtagonistID\":[");
+            }
+            else
+            {
+                itog.append("],\"allProtagonistID\":[");
+            }
+
             QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
             if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
             {
@@ -548,7 +561,15 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("],\"allDirectorID\":[");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[],\"allDirectorID\":[");
+            }
+            else
+            {
+                itog.append("],\"allDirectorID\":[");
+            }
+
             QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
             if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
             {
@@ -560,7 +581,15 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("],\"allStudioName\":[");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[],\"allStudioName\":[");
+            }
+            else
+            {
+                itog.append("],\"allStudioName\":[");
+            }
+
             QSqlQuery* queryAllStudioName = new QSqlQuery(db);
             if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
             {
@@ -572,7 +601,15 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("]}");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -611,19 +648,17 @@ void socketThread::mySocketReady()
         {
             itog = "{\"type\":\"updateData\",\"params\":\"itog\",\"result\":[";
 
-            if (db.isOpen())
-            {
-                qDebug()<< "Клиент " << socketDescriptor<<" запрашивает обновление информации о фильмах";
+            qDebug()<< "Клиент " << socketDescriptor<<" запрашивает обновление информации о фильмах";
+            downloadInformationAboutFilms();
 
-                downloadInformationAboutFilms();
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
             }
             else
             {
-                socket->write("{\"type\":\"connect\", \"status\":\"no\"}");
-                qDebug()<<"Соединение с БД НЕ установлено";
+                itog.append("]}");
             }
-
-            itog.append("]}");
 
             socket->write("{\"type\":\"updateData\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
             socket->waitForBytesWritten(500);
@@ -704,7 +739,16 @@ void socketThread::mySocketReady()
                     itog.remove(itog.length()-1,1);
                 }
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write("{\"type\":\"resultSelectAllStudioName\",\"params\":\"size\",\"length\":"+QByteArray::number(itog.size())+"}");
             socket->waitForBytesWritten(500);
         }
@@ -797,7 +841,15 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
-            itog.append("]}");
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -846,20 +898,27 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "selectAllMovieID") && (doc.object().value("params").toString() == "findAllMovieID"))
         {
             itog = "{\"type\":\"selectAllMovieID\",\"params\":\"itog\",\"result\":[";
-            if (db.isOpen())
+
+            QSqlQuery* queryAllMovieID = new QSqlQuery(db);
+            if (queryAllMovieID->exec("SELECT MovieID FROM Movie"))
             {
-                QSqlQuery* queryAllMovieID = new QSqlQuery(db);
-                if (queryAllMovieID->exec("SELECT MovieID FROM Movie"))
+                while (queryAllMovieID->next())
                 {
-                    while (queryAllMovieID->next())
-                    {
-                        itog.append("{\"MovieID\":\""+queryAllMovieID->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"MovieID\":\""+queryAllMovieID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1148,20 +1207,27 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "findAllDirectorID"))
         {
             itog = "{\"type\":\"updateDirector\",\"params\":\"resultAllDirectorID\",\"result\":[";
-            if (db.isOpen())
+
+            QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
+            if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
             {
-                QSqlQuery* queryAllDirectorID = new QSqlQuery(db);
-                if (queryAllDirectorID->exec("SELECT DirectorID FROM Director"))
+                while (queryAllDirectorID->next())
                 {
-                    while (queryAllDirectorID->next())
-                    {
-                        itog.append("{\"DirectorID\":\""+queryAllDirectorID->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"DirectorID\":\""+queryAllDirectorID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1256,20 +1322,27 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateStudio") && (doc.object().value("params").toString() == "findAllStudioName"))
         {
             itog = "{\"type\":\"updateStudio\",\"params\":\"resultAllStudioName\",\"result\":[";
-            if (db.isOpen())
+
+            QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+            if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
             {
-                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
-                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                while (queryAllStudioName->next())
                 {
-                    while (queryAllStudioName->next())
-                    {
-                        itog.append("{\"StudioName\":\""+queryAllStudioName->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"StudioName\":\""+queryAllStudioName->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1307,20 +1380,27 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "findAllActorID"))
         {
             itog = "{\"type\":\"updateActor\",\"params\":\"resultAllActorID\",\"result\":[";
-            if (db.isOpen())
+
+            QSqlQuery* queryAllActorID = new QSqlQuery(db);
+            if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
             {
-                QSqlQuery* queryAllActorID = new QSqlQuery(db);
-                if (queryAllActorID->exec("SELECT ActorID FROM Actor"))
+                while (queryAllActorID->next())
                 {
-                    while (queryAllActorID->next())
-                    {
-                        itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"ActorID\":\""+queryAllActorID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1466,20 +1546,27 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "findAllProtagonistID"))
         {
             itog = "{\"type\":\"updateProtagonist\",\"params\":\"resultAllProtagonistID\",\"result\":[";
-            if (db.isOpen())
+
+            QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
+            if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
             {
-                QSqlQuery* queryAllProtagonistID = new QSqlQuery(db);
-                if (queryAllProtagonistID->exec("SELECT ProtagonistID FROM Protagonist"))
+                while (queryAllProtagonistID->next())
                 {
-                    while (queryAllProtagonistID->next())
-                    {
-                        itog.append("{\"ProtagonistID\":\""+queryAllProtagonistID->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"ProtagonistID\":\""+queryAllProtagonistID->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1594,23 +1681,29 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "outputDirector") && (doc.object().value("params").toString() == "findAllDirector"))
         {
             itog = "{\"type\":\"outputDirector\",\"params\":\"resultAllDirector\",\"result\":[";
-            if (db.isOpen())
+            QSqlQuery* queryAllDirector = new QSqlQuery(db);
+            if (queryAllDirector->exec("SELECT DirectorID, FirstName, LastName, DateOfBirth FROM Director"))
             {
-                QSqlQuery* queryAllDirector = new QSqlQuery(db);
-                if (queryAllDirector->exec("SELECT DirectorID, FirstName, LastName, DateOfBirth FROM Director"))
+                while (queryAllDirector->next())
                 {
-                    while (queryAllDirector->next())
-                    {
-                        itog.append("{\"directorID\":\""+queryAllDirector->value(0).toString()+
-                                    "\",\"firstName\":\""+queryAllDirector->value(1).toString()+
-                                    "\",\"lastName\":\""+queryAllDirector->value(2).toString()+
-                                    "\",\"dateOfBirth\":\""+queryAllDirector->value(3).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"directorID\":\""+queryAllDirector->value(0).toString()+
+                                "\",\"firstName\":\""+queryAllDirector->value(1).toString()+
+                                "\",\"lastName\":\""+queryAllDirector->value(2).toString()+
+                                "\",\"dateOfBirth\":\""+queryAllDirector->value(3).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            delete queryAllDirector;
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1643,20 +1736,26 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "outputStudio") && (doc.object().value("params").toString() == "findAllStudio"))
         {
             itog = "{\"type\":\"outputStudio\",\"params\":\"resultAllStudio\",\"result\":[";
-            if (db.isOpen())
+            QSqlQuery* queryAllStudioName = new QSqlQuery(db);
+            if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
             {
-                QSqlQuery* queryAllStudioName = new QSqlQuery(db);
-                if (queryAllStudioName->exec("SELECT StudioName FROM Studio"))
+                while (queryAllStudioName->next())
                 {
-                    while (queryAllStudioName->next())
-                    {
-                        itog.append("{\"studioName\":\""+queryAllStudioName->value(0).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"studioName\":\""+queryAllStudioName->value(0).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            delete queryAllStudioName;
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
@@ -1689,24 +1788,30 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "outputActor") && (doc.object().value("params").toString() == "findAllActor"))
         {
             itog = "{\"type\":\"outputActor\",\"params\":\"resultAllActor\",\"result\":[";
-            if (db.isOpen())
+            QSqlQuery* queryAllActor = new QSqlQuery(db);
+            if (queryAllActor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor"))
             {
-                QSqlQuery* queryAllActor = new QSqlQuery(db);
-                if (queryAllActor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor"))
+                while (queryAllActor->next())
                 {
-                    while (queryAllActor->next())
-                    {
 
-                        itog.append("{\"actorID\":\""+queryAllActor->value(0).toString()+
-                                    "\",\"firstName\":\""+queryAllActor->value(1).toString()+
-                                    "\",\"lastName\":\""+queryAllActor->value(2).toString()+
-                                    "\",\"dateOfBirth\":\""+queryAllActor->value(3).toString()+
-                                    "\"},");
-                    }
-                    itog.remove(itog.length()-1,1);
+                    itog.append("{\"actorID\":\""+queryAllActor->value(0).toString()+
+                                "\",\"firstName\":\""+queryAllActor->value(1).toString()+
+                                "\",\"lastName\":\""+queryAllActor->value(2).toString()+
+                                "\",\"dateOfBirth\":\""+queryAllActor->value(3).toString()+
+                                "\"},");
                 }
+                itog.remove(itog.length()-1,1);
             }
-            itog.append("]}");
+
+            delete queryAllActor;
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
             qDebug()<<"Клиент " << socketDescriptor << " запрашивает информацию об актёрах";
             socket->write(itog);
             socket->waitForBytesWritten(500);
@@ -1827,6 +1932,7 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
+            delete protagonist;
             if (itog.lastIndexOf(":") == (itog.length()-1))
             {
                 itog.append("[],\"resultView\":[");
@@ -1850,6 +1956,7 @@ void socketThread::mySocketReady()
                 itog.remove(itog.length()-1,1);
             }
 
+            delete view;
             if (itog.lastIndexOf(":") == (itog.length()-1))
             {
                 itog.append("[]}");

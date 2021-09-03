@@ -651,7 +651,7 @@ void MainWindow::socketReady()
             Data.append(socket->readAll());
             complexData = false;
         }
-        //qDebug() << Data;
+        qDebug() << Data;
         doc = QJsonDocument::fromJson(Data, &docError);
 
         if ((docError.errorString()=="no error occurred") && (!pictureArrives) && (!actorPortraitArrives) && (!scenarioArrives) && (!updPosterArrives) && (!updScenarioArrives))
