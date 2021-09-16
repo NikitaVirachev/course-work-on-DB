@@ -45,6 +45,11 @@ void MainWindow::conToHost(QString ipAdress)
     socket->connectToHost(ipAdress, 5555);
 }
 
+void MainWindow::slotError(QAbstractSocket::SocketError error)
+{
+    QMessageBox::information(this,"Инофрмация","Соединение не установлено: ");
+}
+
 void MainWindow::conToDB(QString adressDB, QString nameDB, QString login, QString password)
 {
     if (socket->isOpen())
@@ -170,6 +175,7 @@ void MainWindow::outputData()
     }
 
     flagContextMenu = true;
+
     ui->tableView->setModel(movies);
 }
 
@@ -651,7 +657,7 @@ void MainWindow::socketReady()
             Data.append(socket->readAll());
             complexData = false;
         }
-        qDebug() << Data;
+        //qDebug() << Data;
         doc = QJsonDocument::fromJson(Data, &docError);
 
         if ((docError.errorString()=="no error occurred") && (!pictureArrives) && (!actorPortraitArrives) && (!scenarioArrives) && (!updPosterArrives) && (!updScenarioArrives))
@@ -2018,4 +2024,3 @@ void MainWindow::on_action_17_triggered()
     socket->write("{\"type\":\"storedProcedures\",\"params\":\"findStoredProcedures\"}");
     socket->waitForBytesWritten(500);
 }
-

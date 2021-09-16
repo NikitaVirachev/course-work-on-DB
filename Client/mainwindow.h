@@ -106,6 +106,7 @@ public slots:
     void socketReady();
     void socketDisc();
     void conToHost(QString);
+    void slotError(QAbstractSocket::SocketError);
     void conToDB(QString, QString, QString, QString);
     void preparingAddMovie(QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
     void outputData();

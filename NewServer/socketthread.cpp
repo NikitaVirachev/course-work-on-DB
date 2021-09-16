@@ -18,6 +18,7 @@ void socketThread::run()
     QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(mySocketReady()), Qt::DirectConnection);
     QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(socketDisc()), Qt::DirectConnection);
 
+
     qDebug()<<"Клиент " << socketDescriptor << " подключился к серверу приложения";
     exec();
 }
@@ -202,7 +203,9 @@ void socketThread::mySocketReady()
             qDebug()<< "Клиент " << socketDescriptor<<" запрашивает подключение к серверу БД";
             QString connectionName = QString::number(socketDescriptor);
             db = QSqlDatabase::addDatabase("QODBC", connectionName);
-            db.setDatabaseName("DRIVER={SQL Server};SERVER="+doc.object().value("adressDB").toString()+";DATABASE="+doc.object().value("nameDB").toString()+";");
+            db.setDatabaseName("DRIVER={SQL Server};"
+                               "SERVER="+doc.object().value("adressDB").toString()+";"
+                               "DATABASE="+doc.object().value("nameDB").toString()+";");
             db.setUserName(doc.object().value("login").toString());
             db.setPassword(doc.object().value("password").toString());
             db.open();
@@ -924,6 +927,9 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "findMovieInformation"))
         {
+            QSqlQuery* beginTransact = new QSqlQuery(db);
+            beginTransact->prepare("BEGIN TRANSACTION");
+
             movieID = doc.object().value("id").toString();
 
             itog = "{\"type\":\"updateMovie\",\"params\":\"movieInformation\",";
@@ -952,6 +958,7 @@ void socketThread::mySocketReady()
             socket->waitForBytesWritten(500);
 
             delete movies;
+            delete beginTransact;
         }
         else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "requestPosterSize"))
         {
@@ -1184,6 +1191,10 @@ void socketThread::mySocketReady()
                 socket->waitForBytesWritten(500);
             }
 
+            QSqlQuery* endTransact = new QSqlQuery(db);
+            endTransact->prepare("COMMIT TRANSACTION");
+
+            delete endTransact;
         }
         else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sizeNewPoster"))
         {
@@ -2064,6 +2075,9 @@ void socketThread::mySocketReady()
             scenarioArrives = false;
             if (db.isOpen())
             {
+                QSqlQuery* beginTransact = new QSqlQuery(db);
+                beginTransact->prepare("BEGIN TRANSACTION");
+
                 QString newMovieID;
                 QSqlQuery* queryNewMovieID = new QSqlQuery(db);
                 if (queryNewMovieID->exec("SELECT MAX(MovieID) FROM Movie"))
@@ -2164,6 +2178,9 @@ void socketThread::mySocketReady()
                     socket->write("{\"type\":\"addNewMovie\",\"params\":\"movieAddedSuccessfully\"}");
                     socket->waitForBytesWritten(500);
                 }
+
+                QSqlQuery* endTransact = new QSqlQuery(db);
+                endTransact->prepare("COMMIT TRANSACTION");
             }
         }
         else

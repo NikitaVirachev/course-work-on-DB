@@ -1,9 +1,9 @@
 #include "myserver.h"
 #include "ui_myserver.h"
+#include <iostream>
 
 myserver::myserver(QWidget *parent)
     : QTcpServer(parent)
-    , ui(new Ui::myserver)
 {
     //ui->setupUi(this);
 
@@ -11,10 +11,12 @@ myserver::myserver(QWidget *parent)
 
 myserver::~myserver()
 {
-    delete ui;
+    //delete ui;
 }
 
 void myserver::startServer(){
+    std::setlocale(LC_ALL, "Rus");
+    QTextStream cout(stdout); cout.setCodec("CP1251");
 
     if (this->listen(QHostAddress::Any,5555)){
         qDebug()<<"Сервер слушает";
@@ -22,18 +24,10 @@ void myserver::startServer(){
     else {
         qDebug()<<"Сервер не слушает: " << errorString();
     }
-
-    /*QPixmap myPixmap("D:/1.png");
-    QByteArray bytes;
-    QBuffer buffer(&bytes);
-    qDebug() << buffer.open(QIODevice::WriteOnly);
-    qDebug() << myPixmap.save(&buffer, "PNG");
-    qDebug() << bytes;*/
 };
 
 void myserver::incomingConnection(qintptr socketDescriptor)
 {
     socketThread* thread = new socketThread(socketDescriptor);
-    //connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }

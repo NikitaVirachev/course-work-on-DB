@@ -56,6 +56,11 @@ void updateMovie::acceptMovieID(QList<QString> listMovieID)
 
 void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, QString boxOffice, QString budget, QString studioName, QString directorID, QString protagonistID, QByteArray poster, QByteArray scenario, QList<QString> listDirectorID, QList<QString> listProtagonistID, QList<QString> listStudioName)
 {
+    double doubleBudget = budget.toDouble();
+    double doubleBoxOffice = boxOffice.toDouble();
+    int intBudget = doubleBudget;
+    int intBoxOffice = doubleBoxOffice;
+
     for (int i = 0; i < listDirectorID.length(); ++i)
     {
         ui->comboBox_2->addItem(listDirectorID[i]);
@@ -111,8 +116,8 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
         ui->dateEdit->setEnabled(true);
     }
 
-    ui->lineEdit_2->setText(boxOffice);
-    ui->lineEdit_3->setText(budget);
+    ui->lineEdit_2->setText(QString::number(intBoxOffice));
+    ui->lineEdit_3->setText(QString::number(intBudget));
 
     outPoster = QPixmap();
     if (poster != "NULL")
@@ -182,6 +187,8 @@ void updateMovie::on_pushButton_3_clicked()
     bool movieIDFlag = false;
     QString movieID = "";
     QString date;
+    int budget = ui->lineEdit_3->text().toDouble();
+    int boxoffice = ui->lineEdit_2->text().toDouble();
 
     if (ui->checkBox_2->checkState())
     {

@@ -7,10 +7,6 @@
 #include <QBuffer>
 #include "socketthread.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class myserver; }
-QT_END_NAMESPACE
-
 class myserver : public QTcpServer
 {
     Q_OBJECT
@@ -24,6 +20,6 @@ public slots:
     void incomingConnection(qintptr socketDescriptor);
 
 private:
-    Ui::myserver *ui;
+    //Ui::myserver *ui;
 };
 #endif // MYSERVER_H

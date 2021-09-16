@@ -126,6 +126,7 @@ void outputActor::acceptActorPortrait(QByteArray actorPortrait, QJsonArray docAr
         if (docArr.at(i).toObject().value("budget").toString() != "0")
         {
             budget = new QStandardItem(docArr.at(i).toObject().value("budget").toString());
+            qDebug() << docArr.at(i).toObject().value("budget").toString();
         }
         else
         {
