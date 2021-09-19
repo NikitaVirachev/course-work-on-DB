@@ -11,6 +11,8 @@
 #include <QJsonParseError>
 #include <QStandardItem>
 #include <QBuffer>
+#include <QPrinter>
+#include <QTextDocument>
 #include "login.h"
 #include "addmovie.h"
 #include "adddirector.h"
@@ -171,6 +173,8 @@ private slots:
     void on_action_16_triggered();
 
     void on_action_17_triggered();
+
+    void on_action_19_triggered();
 
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);

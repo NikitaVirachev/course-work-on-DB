@@ -1664,6 +1664,22 @@ void MainWindow::socketReady()
                 storedProceduresWin->setWindowTitle("Хранимые процедуры");
                 storedProceduresWin->show();
             }
+            else if ((doc.object().value("type").toString() == "report") && (doc.object().value("params").toString() == "PDFreport"))
+            {
+                QPrinter printer;
+                printer.setOrientation(QPrinter::Portrait);
+                printer.setOutputFormat(QPrinter::PdfFormat);
+                printer.setPaperSize(QPrinter::A4);
+
+                QString path = QFileDialog::getSaveFileName(NULL, "Сохранить в PDF", "Отчёт", "PDF(*.pdf)");
+                if (path.isEmpty()) return;
+
+                printer.setOutputFileName(path);
+
+                QTextDocument document;
+                document.setHtml(doc.object().value("report").toString());
+                document.print(&printer);
+            }
             else
             {
                 complexData = true;
@@ -2022,5 +2038,11 @@ void MainWindow::on_action_16_triggered()
 void MainWindow::on_action_17_triggered()
 {
     socket->write("{\"type\":\"storedProcedures\",\"params\":\"findStoredProcedures\"}");
+    socket->waitForBytesWritten(500);
+}
+
+void MainWindow::on_action_19_triggered()
+{
+    socket->write("{\"type\":\"report\",\"params\":\"requestReport\"}");
     socket->waitForBytesWritten(500);
 }

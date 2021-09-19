@@ -12,6 +12,10 @@
 #include <QSqlQuery>
 #include <QFile>
 #include <QPixmap>
+#include <QAxObject>
+#include <QTextStream>
+#include <QPrinter>
+#include <QTextDocument>
 
 class socketThread : public QThread
 {

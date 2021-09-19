@@ -674,26 +674,17 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "addNewDirector") && (doc.object().value("params").toString() == "data"))
         {
-            QString newDirectorID;
-            QSqlQuery* queryNewDirectorID = new QSqlQuery(db);
-            if (queryNewDirectorID->exec("SELECT MAX(DirectorID) FROM Director"))
-            {
-                queryNewDirectorID->first();
-                newDirectorID = QString::number(queryNewDirectorID->value(0).toInt() + 1);
-            }
-
             QSqlQuery* query = new QSqlQuery(db);
             if (doc.object().value("dateOfBirth").toString() == "")
             {
-                query->prepare("INSERT INTO Director (DirectorID, FirstName, LastName, DateOfBirth) "
-                               "VALUES (:DirectorID, :FirstName, :LastName, NULL)");
+                query->prepare("INSERT INTO Director (FirstName, LastName, DateOfBirth) "
+                               "VALUES (:FirstName, :LastName, NULL)");
             }
             else
             {
-                query->prepare("INSERT INTO Director (DirectorID, FirstName, LastName, DateOfBirth) "
-                               "VALUES (:DirectorID, :FirstName, :LastName, :DateOfBirth)");
+                query->prepare("INSERT INTO Director (FirstName, LastName, DateOfBirth) "
+                               "VALUES (:FirstName, :LastName, :DateOfBirth)");
             }
-            query->bindValue(":DirectorID", newDirectorID);
             if (doc.object().value("firstName").toString() != "")
             {
                 query->bindValue(":FirstName", doc.object().value("firstName").toString());
@@ -858,18 +849,9 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "addNewProtagonist") && (doc.object().value("params").toString() == "data"))
         {
-            QString newProtagonistID;
-            QSqlQuery* queryNewProtagonistID = new QSqlQuery(db);
-            if (queryNewProtagonistID->exec("SELECT MAX(ProtagonistID) FROM Protagonist"))
-            {
-                queryNewProtagonistID->first();
-                newProtagonistID = QString::number(queryNewProtagonistID->value(0).toInt() + 1);
-            }
-
             QSqlQuery* query = new QSqlQuery(db);
-            query->prepare("INSERT INTO Protagonist (ProtagonistID, ActorID, Name) "
-                           "VALUES (:ProtagonistID, :ActorID, :Name)");
-            query->bindValue(":ProtagonistID", newProtagonistID);
+            query->prepare("INSERT INTO Protagonist (ActorID, Name) "
+                           "VALUES (:ActorID, :Name)");
             if (doc.object().value("actorID").toString() == "")
             {
                 query->bindValue(":ActorID", QVariant (QVariant :: String));
@@ -2042,6 +2024,138 @@ void socketThread::mySocketReady()
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
+        else if ((doc.object().value("type").toString() == "report") && (doc.object().value("params").toString() == "requestReport"))
+        {
+            QString str;
+            str.append("<html><head></head><body><center>"+QString("Таблица фильмов"));
+            str.append("<table border=1><tr>");
+            str.append("<th>"+QString("Номер фильма")+"</th>");
+            str.append("<th>"+QString("Название фильма")+"</th>");
+            str.append("<th>"+QString("Дата выхода")+"</th>");
+            str.append("<th>"+QString("Кассовые сборы")+"</th>");
+            str.append("<th>"+QString("Бюджет")+"</th>");
+            str.append("<th>"+QString("Номер главного героя")+"</th>");
+            str.append("<th>"+QString("Номер режиссёра")+"</th>");
+            str.append("<th>"+QString("Название киностудии")+"</th></tr>");
+
+            QSqlQuery* queryMovies = new QSqlQuery(db);
+            queryMovies->exec("SELECT MovieID, Title, ReleaseDate, BoxOffice, Budget, ProtagonistID, DirectorID, StudioName FROM Movie");
+
+            while(queryMovies->next())
+            {
+                str.append("<tr><td>");
+                str.append(queryMovies->value(0).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(1).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(2).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(3).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(4).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(5).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(6).toString());
+                str.append("</td><td>");
+                str.append(queryMovies->value(7).toString());
+                str.append("</td></tr>");
+            }
+
+
+            str.append("</table></center><p><br></p><center>"+QString("Таблица режиссёров"));
+            str.append("<table border=1><tr>");
+            str.append("<th>"+QString("Номер режиссёра")+"</th>");
+            str.append("<th>"+QString("Имя")+"</th>");
+            str.append("<th>"+QString("Фамилия")+"</th>");
+            str.append("<th>"+QString("Дата рождения")+"</th></tr>");
+
+            QSqlQuery* queryDirector = new QSqlQuery(db);
+            queryDirector->exec("SELECT * FROM Director");
+
+            while(queryDirector->next())
+            {
+                str.append("<tr><td>");
+                str.append(queryDirector->value(0).toString());
+                str.append("</td><td>");
+                str.append(queryDirector->value(1).toString());
+                str.append("</td><td>");
+                str.append(queryDirector->value(2).toString());
+                str.append("</td><td>");
+                str.append(queryDirector->value(3).toString());
+                str.append("</td></tr>");
+            }
+
+            str.append("</table></center><p><br></p><center>"+QString("Таблица актёров"));
+            str.append("<table border=1><tr>");
+            str.append("<th>"+QString("Номер актёра")+"</th>");
+            str.append("<th>"+QString("Имя")+"</th>");
+            str.append("<th>"+QString("Фамилия")+"</th>");
+            str.append("<th>"+QString("Дата рождения")+"</th></tr>");
+
+            QSqlQuery* queryActor = new QSqlQuery(db);
+            queryActor->exec("SELECT ActorID, FirstName, LastName, DateOfBirth FROM Actor");
+
+            while(queryActor->next())
+            {
+                str.append("<tr><td>");
+                str.append(queryActor->value(0).toString());
+                str.append("</td><td>");
+                str.append(queryActor->value(1).toString());
+                str.append("</td><td>");
+                str.append(queryActor->value(2).toString());
+                str.append("</td><td>");
+                str.append(queryActor->value(3).toString());
+                str.append("</td></tr>");
+            }
+
+            str.append("</table></center><p><br></p><center>"+QString("Таблица главных героев"));
+            str.append("<table border=1><tr>");
+            str.append("<th>"+QString("Номер главного героя")+"</th>");
+            str.append("<th>"+QString("Имя")+"</th>");
+            str.append("<th>"+QString("номер актёра")+"</th></tr>");
+
+            QSqlQuery* queryProtagonist = new QSqlQuery(db);
+            queryProtagonist->exec("SELECT * FROM Protagonist");
+
+            while(queryProtagonist->next())
+            {
+                str.append("<tr><td>");
+                str.append(queryProtagonist->value(0).toString());
+                str.append("</td><td>");
+                str.append(queryProtagonist->value(1).toString());
+                str.append("</td><td>");
+                str.append(queryProtagonist->value(2).toString());
+                str.append("</td></tr>");
+            }
+
+            str.append("</table></center><p><br></p><center>"+QString("Таблица киностудий"));
+            str.append("<table border=1><tr>");
+            str.append("<th>"+QString("Название киностудии")+"</th></tr>");
+
+            QSqlQuery* queryStudio = new QSqlQuery(db);
+            queryStudio->exec("SELECT * FROM Studio");
+
+            while(queryStudio->next())
+            {
+                str.append("<tr><td>");
+                str.append(queryStudio->value(0).toString());
+                str.append("</td></tr>");
+            }
+
+            str.append("</table></center></body></html>");
+
+            /*QAxObject* word = new QAxObject("Word.Application",this);
+            word->setProperty("DisplayAlert", false);
+            word->setProperty("Visible",true);
+            QAxObject* doc = word->querySubObject("Documents");
+            doc->dynamicCall("Open(QVariant)",file);*/
+
+            itog = "{\"type\":\"report\",\"params\":\"PDFreport\",\"report\":\""+str.toUtf8()+"\"}";
+            qDebug() << itog;
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
@@ -2075,30 +2189,18 @@ void socketThread::mySocketReady()
             scenarioArrives = false;
             if (db.isOpen())
             {
-                QSqlQuery* beginTransact = new QSqlQuery(db);
-                beginTransact->prepare("BEGIN TRANSACTION");
-
-                QString newMovieID;
-                QSqlQuery* queryNewMovieID = new QSqlQuery(db);
-                if (queryNewMovieID->exec("SELECT MAX(MovieID) FROM Movie"))
-                {
-                    queryNewMovieID->first();
-                    newMovieID = QString::number(queryNewMovieID->value(0).toInt() + 1);
-                }
-
                 QSqlQuery* query = new QSqlQuery(db);
                 if (newReleaseDate == "")
                 {
-                    query->prepare("INSERT INTO Movie (MovieID, StudioName, DirectorID, ProtagonistID, Title, ReleaseDate, BoxOffice, Budget, Poster, Scenario) "
-                                   "VALUES (:MovieID, :StudioName, :DirectorID, :ProtagonistID, :Title, NULL, :BoxOffice, :Budget, :Poster, :Scenario)");
+                    query->prepare("INSERT INTO Movie (StudioName, DirectorID, ProtagonistID, Title, ReleaseDate, BoxOffice, Budget, Poster, Scenario) "
+                                   "VALUES (:StudioName, :DirectorID, :ProtagonistID, :Title, NULL, :BoxOffice, :Budget, :Poster, :Scenario)");
                 }
                 else
                 {
-                    query->prepare("INSERT INTO Movie (MovieID, StudioName, DirectorID, ProtagonistID, Title, ReleaseDate, BoxOffice, Budget, Poster, Scenario) "
-                                   "VALUES (:MovieID, :StudioName, :DirectorID, :ProtagonistID, :Title, :ReleaseDate, :BoxOffice, :Budget, :Poster, :Scenario)");
+                    query->prepare("INSERT INTO Movie (StudioName, DirectorID, ProtagonistID, Title, ReleaseDate, BoxOffice, Budget, Poster, Scenario) "
+                                   "VALUES (:StudioName, :DirectorID, :ProtagonistID, :Title, :ReleaseDate, :BoxOffice, :Budget, :Poster, :Scenario)");
                 }
 
-                query->bindValue(":MovieID", newMovieID);
                 if (newStudioName == "")
                 {
                     query->bindValue(":StudioName", QVariant (QVariant :: String));
@@ -2198,26 +2300,17 @@ void socketThread::mySocketReady()
 
             if (db.isOpen())
             {
-                QString newActorID;
-                QSqlQuery* queryNewActorID = new QSqlQuery(db);
-                if (queryNewActorID->exec("SELECT MAX(ActorID) FROM Actor"))
-                {
-                    queryNewActorID->first();
-                    newActorID = QString::number(queryNewActorID->value(0).toInt() + 1);
-                }
-
                 QSqlQuery* query = new QSqlQuery(db);
                 if (newDateOfBirthActor == "")
                 {
-                    query->prepare("INSERT INTO Actor (ActorID, FirstName, LastName, DateOfBirth, ActorPortrait) "
-                                   "VALUES (:ActorID, :FirstName, :LastName, NULL, :ActorPortrait)");
+                    query->prepare("INSERT INTO Actor (FirstName, LastName, DateOfBirth, ActorPortrait) "
+                                   "VALUES (:FirstName, :LastName, NULL, :ActorPortrait)");
                 }
                 else
                 {
-                    query->prepare("INSERT INTO Actor (ActorID, FirstName, LastName, DateOfBirth, ActorPortrait) "
-                                   "VALUES (:ActorID, :FirstName, :LastName, :DateOfBirth, :ActorPortrait)");
+                    query->prepare("INSERT INTO Actor (FirstName, LastName, DateOfBirth, ActorPortrait) "
+                                   "VALUES (:FirstName, :LastName, :DateOfBirth, :ActorPortrait)");
                 }
-                query->bindValue(":ActorID", newActorID);
                 if (newFirstNameActor != "")
                 {
                     query->bindValue(":FirstName", newFirstNameActor);
