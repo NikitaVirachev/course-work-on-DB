@@ -23,7 +23,6 @@ updateActor::~updateActor()
 
 void updateActor::acceptActorID(QList<QString> listActorID)
 {
-    ui->lineEdit->clear();
     ui->lineEdit_2->clear();
     ui->lineEdit_3->clear();
     ui->dateEdit->setDate(QDate::currentDate());
@@ -88,7 +87,6 @@ void updateActor::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (ui->comboBox->currentText() != " ")
     {
-        ui->lineEdit->clear();
         ui->lineEdit_2->clear();
         ui->lineEdit_3->clear();
         ui->dateEdit->setDate(QDate::currentDate());
@@ -117,9 +115,6 @@ void updateActor::on_pushButton_clicked()
 
 void updateActor::on_pushButton_2_clicked()
 {
-    bool uniqueID = true;
-    bool actorIDFlag = false;
-    QString actorID = "";
     QString date;
 
     if (ui->checkBox->checkState())
@@ -136,47 +131,19 @@ void updateActor::on_pushButton_2_clicked()
         newActorPortrait = QPixmap();
     }
 
-    if (ui->lineEdit->text() == "")
+
+    ui->progressBar->show();
+    ui->pushButton->setEnabled(false);
+    ui->pushButton_2->setEnabled(false);
+
+    if (portraitFlag)
     {
-        actorID = ui->comboBox->currentText();
-        actorIDFlag = true;
+        emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, newActorPortrait);
+        portraitFlag = false;
     }
     else
     {
-        for (int i = 0; i < localListActorID.length(); ++i)
-        {
-            if (localListActorID[i] == ui->lineEdit->text())
-            {
-                uniqueID = false;
-            }
-        }
-
-        if (uniqueID)
-        {
-            actorID = ui->lineEdit->text();
-            actorIDFlag = true;
-        }
-        else
-        {
-            QMessageBox::information(this,"Ошибка","Необходимо использовать уникальный номер");
-        }
-    }
-
-    if (actorIDFlag)
-    {
-        ui->progressBar->show();
-        ui->pushButton->setEnabled(false);
-        ui->pushButton_2->setEnabled(false);
-
-        if (portraitFlag)
-        {
-            emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, newActorPortrait);
-            portraitFlag = false;
-        }
-        else
-        {
-            emit sendUpdateActorWithout(ui->comboBox->currentText(), actorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
-        }
+        emit sendUpdateActorWithout(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
     }
 }
 
@@ -203,7 +170,7 @@ void updateActor::on_checkBox_2_stateChanged(int arg1)
     {
         ui->pushButton->setEnabled(false);
         ui->label_7->clear();
-        portraitFlag = false;
+        portraitFlag = true;
     }
     else
     {
@@ -211,7 +178,7 @@ void updateActor::on_checkBox_2_stateChanged(int arg1)
         int h = ui->label_7->height();
         ui->label_7->setPixmap(outPortrait.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
-        portraitFlag = true;
+        portraitFlag = false;
     }
 }
 

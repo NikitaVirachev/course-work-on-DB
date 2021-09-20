@@ -268,7 +268,7 @@ void MainWindow::prepareMovieInformationForUpdate(QString movieID)
     }
 }
 
-void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
                                              QString protagonistID, QString studioName, QPixmap poster)
 {
     if (poster.isNull())
@@ -286,7 +286,6 @@ void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString newMovi
     {
         socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"poster\""
                       ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
-                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
                       "\",\"title\":\"" + title.toUtf8() +
                       "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
                       "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
@@ -303,7 +302,7 @@ void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString newMovi
     }
 }
 
-void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
                                                QString protagonistID, QString studioName, QString scenario)
 {
     newScenario = scenario.toUtf8();
@@ -312,7 +311,6 @@ void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString newMo
     {
         socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"scenario\""
                       ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
-                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
                       "\",\"title\":\"" + title.toUtf8() +
                       "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
                       "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
@@ -329,7 +327,7 @@ void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString newMo
     }
 }
 
-void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QString newMovieID, QString title, QString releaseDate,
+void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QString title, QString releaseDate,
                                                         QString boxOffice, QString budget, QString directorID, QString protagonistID,
                                                         QString studioName, QPixmap poster, QString scenario)
 {
@@ -350,7 +348,6 @@ void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QStr
     {
         socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"posterAndScenario\""
                       ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
-                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
                       "\",\"title\":\"" + title.toUtf8() +
                       "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
                       "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
@@ -367,14 +364,13 @@ void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QStr
     }
 }
 
-void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString newMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
+void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
                                           QString protagonistID, QString studioName)
 {
     if (socket->isOpen())
     {
         socket->write("{\"type\":\"updateMovie\",\"params\":\"sendMovieInformation\",\"additionally\":\"basicOnly\""
                       ",\"oldMovieID\":\"" + oldMovieID.toUtf8() +
-                      "\",\"newMovieID\":\"" + newMovieID.toUtf8() +
                       "\",\"title\":\"" + title.toUtf8() +
                       "\",\"releaseDate\":\"" + releaseDate.toUtf8() +
                       "\",\"boxOffice\":\"" + boxOffice.toUtf8() +
@@ -404,13 +400,12 @@ void MainWindow::prepareDirectorInformationForUpdate(QString directorID)
     }
 }
 
-void MainWindow::preparingUpdDirector(QString oldDirectorID, QString newDdirectorID, QString firstName, QString lastName, QString dateOfBirth)
+void MainWindow::preparingUpdDirector(QString oldDirectorID, QString firstName, QString lastName, QString dateOfBirth)
 {
     if (socket->isOpen())
     {
         socket->write("{\"type\":\"updateDirector\",\"params\":\"sendDirectorInformation\""
                       ",\"oldDirectorID\":\"" + oldDirectorID.toUtf8() +
-                      "\",\"newDirectorID\":\"" + newDdirectorID.toUtf8() +
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
@@ -452,7 +447,7 @@ void MainWindow::prepareActorInformationForUpdate(QString actorID)
     }
 }
 
-void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString newActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
+void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
 {
     if (actorPortrait.isNull())
     {
@@ -469,7 +464,6 @@ void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString newAc
     {
         socket->write("{\"type\":\"updateActor\",\"params\":\"sendActorInformation\",\"additionally\":\"actorPortrait\""
                       ",\"oldActorID\":\"" + oldActorID.toUtf8() +
-                      "\",\"newActorID\":\"" + newActorID.toUtf8() +
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
@@ -482,13 +476,12 @@ void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString newAc
     }
 }
 
-void MainWindow::preparingUpdActorWithout(QString oldActorID, QString newActorID, QString firstName, QString lastName, QString dateOfBirth)
+void MainWindow::preparingUpdActorWithout(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth)
 {
     if (socket->isOpen())
     {
         socket->write("{\"type\":\"updateActor\",\"params\":\"sendActorInformation\",\"additionally\":\"basicOnly\""
                       ",\"oldActorID\":\"" + oldActorID.toUtf8() +
-                      "\",\"newActorID\":\"" + newActorID.toUtf8() +
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
@@ -514,13 +507,12 @@ void MainWindow::prepareProtagonistInformationForUpdate(QString protagonistID)
     }
 }
 
-void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString newProtagonistID, QString name, QString actorID)
+void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString name, QString actorID)
 {
     if (socket->isOpen())
     {
         socket->write("{\"type\":\"updateProtagonist\",\"params\":\"sendProtagonisInformation\""
                       ",\"oldAProtagonistID\":\"" + oldAProtagonistID.toUtf8() +
-                      "\",\"newProtagonistID\":\"" + newProtagonistID.toUtf8() +
                       "\",\"name\":\"" + name.toUtf8() +
                       "\",\"actorID\":\"" + actorID.toUtf8() +
                       "\"}");
@@ -1179,14 +1171,14 @@ void MainWindow::socketReady()
                 emit sendInformationMovieUpd(updTitle, updReleaseDate, updBoxOffice, updBudget, updMovieStudioName, updMovieDirectorID,
                                              updMovieProtagonistID, updPoster, updScenario, listDirectorID, listProtagonistID, listStudioName);
 
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)),
-                        this, SLOT(preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)),
-                        this, SLOT(preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)),
+                        this, SLOT(preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)),
+                        this, SLOT(preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieSuccessfullyUpdated"))
             {
@@ -1305,8 +1297,8 @@ void MainWindow::socketReady()
                 emit sendInformationDirectorUpd(doc.object().value("firstName").toString(), doc.object().value("lastName").toString(),
                                                 doc.object().value("dateOfBirth").toString());
 
-                connect(updateDorectorWin,SIGNAL(sendUpdateDirector(QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdDirector(QString, QString, QString, QString, QString)));
+                connect(updateDorectorWin,SIGNAL(sendUpdateDirector(QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdDirector(QString, QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorSuccessfullyUpdated"))
             {
@@ -1481,8 +1473,8 @@ void MainWindow::socketReady()
                         updateProtagonistWin, SLOT(acceptInformationProtagonistUpd(QString, QString, QList <QString>)));
                 emit sendInformationProtagonistUpd(doc.object().value("name").toString(), doc.object().value("actorID").toString(), listActorID);
 
-                connect(updateProtagonistWin,SIGNAL(sendUpdateProtagonist(QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdProtagonist(QString, QString, QString, QString)));
+                connect(updateProtagonistWin,SIGNAL(sendUpdateProtagonist(QString, QString, QString)),
+                        this, SLOT(preparingUpdProtagonist(QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "protagonistSuccessfullyUpdated"))
             {
@@ -1680,6 +1672,31 @@ void MainWindow::socketReady()
                 document.setHtml(doc.object().value("report").toString());
                 document.print(&printer);
             }
+            else if ((doc.object().value("type").toString() == "report") && (doc.object().value("params").toString() == "itogExcel"))
+            {
+                QString path = QFileDialog::getSaveFileName(NULL, "Сохранить отчёт", "Отчёт", "xlsx(*.xlsx)");
+                //QFile::copy(":report/Excel/excelReport.xlsx", path);
+
+                // получаем указатель на Excel
+                QAxObject *mExcel = new QAxObject( "Excel.Application",this);
+                // на книги
+                QAxObject *workbooks = mExcel->querySubObject( "Workbooks" );
+                // на директорию, откуда грузить книгу
+                QAxObject *workbook = workbooks->querySubObject( "Open(const QString&)", "D:\\Report.xlsx" );
+                // на листы (снизу вкладки)
+                QAxObject *mSheets = workbook->querySubObject( "Sheets" );
+                // указываем, какой лист выбрать. У меня он называется topic.
+                QAxObject *StatSheet = mSheets->querySubObject( "Item(const QVariant&)", QVariant("topic") );
+
+                //StatSheet->setProperty("Name", "Отчёт");
+
+                // получение указателя на ячейку [row][col] ((!)нумерация с единицы)
+                QAxObject* cell = StatSheet->querySubObject("Cells(QVariant,QVariant)", 1, 1);
+                // вставка значения переменной data (любой тип, приводимый к QVariant) в полученную ячейку
+                cell->setProperty("Value", QVariant("Hello world!"));
+                // освобождение памяти
+                //delete cell;
+            }
             else
             {
                 complexData = true;
@@ -1811,10 +1828,10 @@ void MainWindow::socketReady()
 
                 updPortraitArrives = false;
 
-                connect(updateActorWin,SIGNAL(sendUpdateActorWithPortrait(QString, QString, QString, QString, QString, QPixmap)),
-                        this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QString, QPixmap)));
-                connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString, QString)));
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithPortrait(QString, QString, QString, QString, QPixmap)),
+                        this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QPixmap)));
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString)));
             }
             else
             {
@@ -2044,5 +2061,11 @@ void MainWindow::on_action_17_triggered()
 void MainWindow::on_action_19_triggered()
 {
     socket->write("{\"type\":\"report\",\"params\":\"requestReport\"}");
+    socket->waitForBytesWritten(500);
+}
+
+void MainWindow::on_action_20_triggered()
+{
+    socket->write("{\"type\":\"report\",\"params\":\"requestExcelReport\"}");
     socket->waitForBytesWritten(500);
 }

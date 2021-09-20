@@ -22,7 +22,6 @@ updateDirector::~updateDirector()
 
 void updateDirector::acceptDirectorID(QList<QString> listDirectorID)
 {
-    ui->lineEdit->clear();
     ui->lineEdit_2->clear();
     ui->lineEdit_3->clear();
     ui->dateEdit->setDate(QDate::currentDate());
@@ -59,7 +58,6 @@ void updateDirector::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     if (ui->comboBox->currentText() != " ")
     {
-        ui->lineEdit->clear();
         ui->lineEdit_2->clear();
         ui->lineEdit_3->clear();
         ui->dateEdit->setDate(QDate::currentDate());
@@ -72,9 +70,6 @@ void updateDirector::on_comboBox_currentIndexChanged(const QString &arg1)
 
 void updateDirector::on_pushButton_clicked()
 {
-    bool uniqueID = true;
-    bool directorIDFlag = false;
-    QString directorID = "";
     QString date;
 
     if (ui->checkBox->checkState())
@@ -86,39 +81,10 @@ void updateDirector::on_pushButton_clicked()
         date = ui->dateEdit->text();
     }
 
-    if (ui->lineEdit->text() == "")
-    {
-        directorID = ui->comboBox->currentText();
-        directorIDFlag = true;
-    }
-    else
-    {
-        for (int i = 0; i < localListDirectorID.length(); ++i)
-        {
-            if (localListDirectorID[i] == ui->lineEdit->text())
-            {
-                uniqueID = false;
-            }
-        }
+    ui->progressBar->show();
+    ui->pushButton->setEnabled(false);
 
-        if (uniqueID)
-        {
-            directorID = ui->lineEdit->text();
-            directorIDFlag = true;
-        }
-        else
-        {
-            QMessageBox::information(this,"Ошибка","Необходимо использовать уникальный номер");
-        }
-    }
-
-    if (directorIDFlag)
-    {
-        ui->progressBar->show();
-        ui->pushButton->setEnabled(false);
-
-        sendUpdateDirector(ui->comboBox->currentText(), directorID, ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
-    }
+    sendUpdateDirector(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
 }
 
 

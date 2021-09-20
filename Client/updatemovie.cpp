@@ -9,7 +9,6 @@ updateMovie::updateMovie(QWidget *parent) :
 
     ui->lineEdit_2->setValidator(new QRegExpValidator(QRegExp("[0-9]*")));
     ui->lineEdit_3->setValidator(new QRegExpValidator(QRegExp("[0-9]*")));
-    ui->lineEdit_4->setValidator(new QRegExpValidator(QRegExp("[0-9]*")));
     ui->label_10->clear();
     ui->dateEdit->setDate(QDate::currentDate());
     ui->dateEdit->setEnabled(false);
@@ -34,7 +33,6 @@ void updateMovie::acceptMovieID(QList<QString> listMovieID)
     ui->lineEdit->clear();
     ui->lineEdit_2->clear();
     ui->lineEdit_3->clear();
-    ui->lineEdit_4->clear();
     ui->dateEdit->setDate(QDate::currentDate());
     ui->dateEdit->setEnabled(false);
     ui->comboBox_2->clear();
@@ -164,7 +162,6 @@ void updateMovie::on_comboBox_currentIndexChanged(const QString &arg1)
         ui->lineEdit->clear();
         ui->lineEdit_2->clear();
         ui->lineEdit_3->clear();
-        ui->lineEdit_4->clear();
         ui->dateEdit->setDate(QDate::currentDate());
         ui->dateEdit->setEnabled(false);
         ui->comboBox_2->clear();
@@ -183,9 +180,6 @@ void updateMovie::on_comboBox_currentIndexChanged(const QString &arg1)
 
 void updateMovie::on_pushButton_3_clicked()
 {
-    bool uniqueID = true;
-    bool movieIDFlag = false;
-    QString movieID = "";
     QString date;
     int budget = ui->lineEdit_3->text().toDouble();
     int boxoffice = ui->lineEdit_2->text().toDouble();
@@ -204,64 +198,34 @@ void updateMovie::on_pushButton_3_clicked()
         date = ui->dateEdit->text();
     }
 
-    if (ui->lineEdit_4->text() == "")
+    ui->progressBar->show();
+    ui->pushButton_3->setEnabled(false);
+    ui->comboBox->setEnabled(false);
+    if (posterFlag && scenarioFlag)
     {
-        movieID = ui->comboBox->currentText();
-        movieIDFlag = true;
+        sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+                                             ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster,
+                                             ui->textEdit->toPlainText());
+        posterFlag = false;
+        scenarioFlag = false;
+    }
+    else if (posterFlag)
+    {
+        sendUpdateMovieWithPoster(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+                                  ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster);
+        posterFlag = false;
+    }
+    else if (scenarioFlag)
+    {
+        sendUpdateMovieWithScenario(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+                                    ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(),
+                                    ui->textEdit->toPlainText());
+        scenarioFlag = false;
     }
     else
     {
-        for (int i = 0; i < localListMovieID.length(); ++i)
-        {
-            if (localListMovieID[i] == ui->lineEdit_4->text())
-            {
-                uniqueID = false;
-            }
-        }
-
-        if (uniqueID)
-        {
-            movieID = ui->lineEdit_4->text();
-            movieIDFlag = true;
-        }
-        else
-        {
-            QMessageBox::information(this,"Ошибка","Необходимо использовать уникальный номер");
-        }
-    }
-
-    if (movieIDFlag)
-    {
-        ui->progressBar->show();
-        ui->pushButton_3->setEnabled(false);
-        ui->comboBox->setEnabled(false);
-
-        if (posterFlag && scenarioFlag)
-        {
-            sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                                      ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster,
-                                      ui->textEdit->toPlainText());
-            posterFlag = false;
-            scenarioFlag = false;
-        }
-        else if (posterFlag)
-        {
-            sendUpdateMovieWithPoster(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                                      ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster);
-            posterFlag = false;
-        }
-        else if (scenarioFlag)
-        {
-            sendUpdateMovieWithScenario(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                                        ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(),
-                                        ui->textEdit->toPlainText());
-            scenarioFlag = false;
-        }
-        else
-        {
-            sendUpdateMovieWithout(ui->comboBox->currentText(), movieID, ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                                   ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText());
-        }
+        sendUpdateMovieWithout(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
+                               ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText());
     }
 }
 
@@ -327,7 +291,7 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
         ui->pushButton->setEnabled(false);
         ui->pushButton_4->setEnabled(false);
         ui->label_10->clear();
-        posterFlag = false;
+        posterFlag = true;
     }
     else
     {
@@ -336,7 +300,7 @@ void updateMovie::on_checkBox_2_stateChanged(int arg1)
         ui->label_10->setPixmap(outPoster.scaled(w,h,Qt::KeepAspectRatio));
         ui->pushButton->setEnabled(true);
         ui->pushButton_4->setEnabled(true);
-        posterFlag = true;
+        posterFlag = false;
     }
 }
 

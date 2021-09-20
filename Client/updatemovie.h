@@ -55,10 +55,10 @@ private slots:
 
 signals:
     void sendMovieIDSignalUpd(QString);
-    void sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap);
-    void sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString);
-    void sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
-    void sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString);
+    void sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap);
+    void sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString);
+    void sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
+    void sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString);
     void sendImageForChange(QPixmap);
 
 private:

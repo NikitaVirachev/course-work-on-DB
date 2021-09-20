@@ -178,6 +178,7 @@ void socketThread::downloadInformationAboutFilms()
     {
         qDebug()<<"Запрос на фильмы не выполнен";
     }
+    delete movies;
 }
 
 void socketThread::mySocketReady()
@@ -1061,7 +1062,6 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "sendMovieInformation"))
         {
-            newMovieID = doc.object().value("newMovieID").toString();
             oldMovieID = doc.object().value("oldMovieID").toString();
             newTitle = doc.object().value("title").toString();
             newReleaseDate = doc.object().value("releaseDate").toString();
@@ -1076,13 +1076,12 @@ void socketThread::mySocketReady()
                 QSqlQuery* query = new QSqlQuery(db);
                 if (doc.object().value("releaseDate").toString() == "")
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName WHERE MovieID=:oldMovieID");
                 }
                 else
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName WHERE MovieID=:oldMovieID");
                 }
-                query->bindValue(":newMovieID", newMovieID);
                 if (newTitle != "")
                 {
                     query->bindValue(":Title", newTitle);
@@ -1143,18 +1142,9 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    if (checkMovieID(newMovieID))
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
-                    else
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
                 }
             }
             else if (doc.object().value("additionally").toString() == "poster")
@@ -1253,7 +1243,6 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "sendDirectorInformation"))
         {
-            newDirectorID = doc.object().value("newDirectorID").toString();
             oldDirectorID = doc.object().value("oldDirectorID").toString();
             newFirstName = doc.object().value("firstName").toString();
             newLastName = doc.object().value("lastName").toString();
@@ -1262,13 +1251,12 @@ void socketThread::mySocketReady()
             QSqlQuery* query = new QSqlQuery(db);
             if (newDateOfBirth == "")
             {
-                query->prepare("UPDATE Director SET DirectorID=:newDirectorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL WHERE DirectorID=:oldDirectorID");
+                query->prepare("UPDATE Director SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL WHERE DirectorID=:oldDirectorID");
             }
             else
             {
-                query->prepare("UPDATE Director SET DirectorID=:newDirectorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth WHERE DirectorID=:oldDirectorID");
+                query->prepare("UPDATE Director SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth WHERE DirectorID=:oldDirectorID");
             }
-            query->bindValue(":newDirectorID", newDirectorID);
             if (newFirstName != "")
             {
                 query->bindValue(":FirstName", newFirstName);
@@ -1297,18 +1285,9 @@ void socketThread::mySocketReady()
             }
             else
             {
-                if (checkDirectorID(newDirectorID))
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " обновил режиссёра с id = " << oldDirectorID;
-                    socket->write("{\"type\":\"updateDirector\",\"params\":\"directorSuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
-                else
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить режиссёра с id = " << oldDirectorID;
-                    socket->write("{\"type\":\"updateDirector\",\"params\":\"directorUnsuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
+                qDebug()<<"Клиент " << socketDescriptor << " обновил режиссёра с id = " << oldDirectorID;
+                socket->write("{\"type\":\"updateDirector\",\"params\":\"directorSuccessfullyUpdated\"}");
+                socket->waitForBytesWritten(500);
             }
 
         }
@@ -1460,7 +1439,6 @@ void socketThread::mySocketReady()
         }
         else if ((doc.object().value("type").toString() == "updateActor") && (doc.object().value("params").toString() == "sendActorInformation"))
         {
-            newActorID = doc.object().value("newActorID").toString();
             oldActorID = doc.object().value("oldActorID").toString();
             newFirstName = doc.object().value("firstName").toString();
             newLastName = doc.object().value("lastName").toString();
@@ -1471,13 +1449,12 @@ void socketThread::mySocketReady()
                 QSqlQuery* query = new QSqlQuery(db);
                 if (doc.object().value("dateOfBirth").toString() == "")
                 {
-                    query->prepare("UPDATE Actor SET ActorID=:newActorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL WHERE ActorID=:oldActorID");
+                    query->prepare("UPDATE Actor SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL WHERE ActorID=:oldActorID");
                 }
                 else
                 {
-                    query->prepare("UPDATE Actor SET ActorID=:newActorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth WHERE ActorID=:oldActorID");
+                    query->prepare("UPDATE Actor SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth WHERE ActorID=:oldActorID");
                 }
-                query->bindValue(":newActorID", newActorID);
                 if (newFirstName != "")
                 {
                     query->bindValue(":FirstName", newFirstName);
@@ -1506,18 +1483,9 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    if (checkActorID(newActorID))
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " обновил актёра с id = " << oldActorID;
-                        socket->write("{\"type\":\"updateActor\",\"params\":\"actorSuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
-                    else
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить актёра с id = " << oldActorID;
-                        socket->write("{\"type\":\"updateActor\",\"params\":\"actorUnsuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил актёра с id = " << oldActorID;
+                    socket->write("{\"type\":\"updateActor\",\"params\":\"actorSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
                 }
             }
             else if (doc.object().value("additionally").toString() == "actorPortrait")
@@ -1604,8 +1572,7 @@ void socketThread::mySocketReady()
         else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "sendProtagonisInformation"))
         {
             QSqlQuery* query = new QSqlQuery(db);
-            query->prepare("UPDATE Protagonist SET ProtagonistID=:newProtagonistID, Name=:Name, ActorID=:ActorID WHERE ProtagonistID=:oldProtagonistID");
-            query->bindValue(":newProtagonistID", doc.object().value("newProtagonistID").toString());
+            query->prepare("UPDATE Protagonist SET Name=:Name, ActorID=:ActorID WHERE ProtagonistID=:oldProtagonistID");
             if (doc.object().value("name").toString() == "")
             {
                 query->bindValue(":Name", QVariant (QVariant :: String));
@@ -1630,18 +1597,9 @@ void socketThread::mySocketReady()
             }
             else
             {
-                if (checkProtagonistID(doc.object().value("newProtagonistID").toString()))
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " обновил главного героя с id = " << doc.object().value("oldAProtagonistID").toString();
-                    socket->write("{\"type\":\"updateProtagonist\",\"params\":\"protagonistSuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
-                else
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить главного героя с id = " << doc.object().value("oldAProtagonistID").toString();
-                    socket->write("{\"type\":\"updateProtagonist\",\"params\":\"protagonistUnsuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
+                qDebug()<<"Клиент " << socketDescriptor << " обновил главного героя с id = " << doc.object().value("oldAProtagonistID").toString();
+                socket->write("{\"type\":\"updateProtagonist\",\"params\":\"protagonistSuccessfullyUpdated\"}");
+                socket->waitForBytesWritten(500);
             }
 
         }
@@ -2156,6 +2114,38 @@ void socketThread::mySocketReady()
             socket->write(itog);
             socket->waitForBytesWritten(500);
         }
+        else if ((doc.object().value("type").toString() == "report") && (doc.object().value("params").toString() == "requestExcelReport"))
+        {
+            itog = "{\"type\":\"report\",\"params\":\"itogExcel\",\"result\":[";
+
+            QSqlQuery* movies = new QSqlQuery(db);
+            if (movies->exec("SELECT MovieID, Title, ReleaseDate, BoxOffice, Budget FROM Movie"))
+            {
+                while (movies->next())
+                {
+
+                    itog.append("{\"movieID\":\""+movies->value(0).toString()+
+                                "\",\"title\":\""+movies->value(1).toString()+
+                                "\",\"releaseDate\":\""+movies->value(2).toString()+
+                                "\",\"boxOffice\":\""+movies->value(3).toString()+
+                                "\",\"budget\":\""+movies->value(4).toString()+
+                                "\"},");
+                }
+                itog.remove(itog.length()-1,1);
+            }
+
+            if (itog.lastIndexOf(":") == (itog.length()-1))
+            {
+                itog.append("[]}");
+            }
+            else
+            {
+                itog.append("]}");
+            }
+
+            socket->write(itog);
+            socket->waitForBytesWritten(500);
+        }
         else
         {
             //qDebug() << "type: " << doc.object().value("type").toString() << ", params: " << doc.object().value("params").toString();
@@ -2369,19 +2359,19 @@ void socketThread::mySocketReady()
         if (requireSize == Data.size())
         {
             newPoster = Data;
+            qDebug() << newPoster;
 
             if (!posterAndScenario)
             {
                 QSqlQuery* query = new QSqlQuery(db);
                 if (newReleaseDate == "")
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster WHERE MovieID=:oldMovieID");
                 }
                 else
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster WHERE MovieID=:oldMovieID");
                 }
-                query->bindValue(":newMovieID", newMovieID);
                 if (newTitle != "")
                 {
                     query->bindValue(":Title", newTitle);
@@ -2450,18 +2440,9 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    if (checkMovieID(newMovieID))
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
-                    else
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
                 }
             }
             else
@@ -2488,13 +2469,12 @@ void socketThread::mySocketReady()
                 QSqlQuery* query = new QSqlQuery(db);
                 if (newReleaseDate == "")
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Scenario=:Scenario WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Scenario=:Scenario WHERE MovieID=:oldMovieID");
                 }
                 else
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Scenario=:Scenario WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Scenario=:Scenario WHERE MovieID=:oldMovieID");
                 }
-                query->bindValue(":newMovieID", newMovieID);
                 if (newTitle != "")
                 {
                     query->bindValue(":Title", newTitle);
@@ -2575,13 +2555,12 @@ void socketThread::mySocketReady()
                 QSqlQuery* query = new QSqlQuery(db);
                 if (newReleaseDate == "")
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster, Scenario=:Scenario WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=NULL, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster, Scenario=:Scenario WHERE MovieID=:oldMovieID");
                 }
                 else
                 {
-                    query->prepare("UPDATE Movie SET MovieID=:newMovieID, Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster, Scenario=:Scenario WHERE MovieID=:oldMovieID");
+                    query->prepare("UPDATE Movie SET Title=:Title, ReleaseDate=:ReleaseDate, BoxOffice=:BoxOffice, Budget=:Budget, ProtagonistID=:ProtagonistID, DirectorID=:DirectorID, StudioName=:StudioName, Poster=:Poster, Scenario=:Scenario WHERE MovieID=:oldMovieID");
                 }
-                query->bindValue(":newMovieID", newMovieID);
                 if (newTitle != "")
                 {
                     query->bindValue(":Title", newTitle);
@@ -2658,18 +2637,9 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    if (checkMovieID(newMovieID))
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
-                    else
-                    {
-                        qDebug()<<"Клиент " << socketDescriptor << " не смог обновить фильм с id = " << oldMovieID;
-                        socket->write("{\"type\":\"updateMovie\",\"params\":\"movieUnsuccessfullyUpdated\"}");
-                        socket->waitForBytesWritten(500);
-                    }
+                    qDebug()<<"Клиент " << socketDescriptor << " обновил фильм с id = " << oldMovieID;
+                    socket->write("{\"type\":\"updateMovie\",\"params\":\"movieSuccessfullyUpdated\"}");
+                    socket->waitForBytesWritten(500);
                 }
             }
 
@@ -2689,14 +2659,13 @@ void socketThread::mySocketReady()
             QSqlQuery* query = new QSqlQuery(db);
             if (newDateOfBirth == "")
             {
-                query->prepare("UPDATE Actor SET ActorID=:newActorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL, ActorPortrait=:ActorPortrait WHERE ActorID=:oldActorID");
+                query->prepare("UPDATE Actor SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=NULL, ActorPortrait=:ActorPortrait WHERE ActorID=:oldActorID");
             }
             else
             {
-                query->prepare("UPDATE Actor SET ActorID=:newActorID, FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth, ActorPortrait=:ActorPortrait WHERE ActorID=:oldActorID");
+                query->prepare("UPDATE Actor SET FirstName=:FirstName, LastName=:LastName, DateOfBirth=:DateOfBirth, ActorPortrait=:ActorPortrait WHERE ActorID=:oldActorID");
             }
 
-            query->bindValue(":newActorID", newActorID);
             if (newFirstName != "")
             {
                 query->bindValue(":FirstName", newFirstName);
@@ -2733,18 +2702,9 @@ void socketThread::mySocketReady()
             }
             else
             {
-                if (checkActorID(newActorID))
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " обновил актёра с id = " << oldActorID;
-                    socket->write("{\"type\":\"updateActor\",\"params\":\"actorSuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
-                else
-                {
-                    qDebug()<<"Клиент " << socketDescriptor << " не смог обновить актёра с id = " << oldActorID;
-                    socket->write("{\"type\":\"updateActor\",\"params\":\"actorUnsuccessfullyUpdated\"}");
-                    socket->waitForBytesWritten(500);
-                }
+                qDebug()<<"Клиент " << socketDescriptor << " обновил актёра с id = " << oldActorID;
+                socket->write("{\"type\":\"updateActor\",\"params\":\"actorSuccessfullyUpdated\"}");
+                socket->waitForBytesWritten(500);
             }
 
             newActorPortraitArrives = false;

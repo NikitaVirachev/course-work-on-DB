@@ -20,7 +20,6 @@ updateProtagonist::~updateProtagonist()
 void updateProtagonist::acceptProtagonistID(QList<QString> listProtagonistID)
 {
     ui->lineEdit->clear();
-    ui->lineEdit_2->clear();
     ui->comboBox_2->clear();
     ui->progressBar->hide();
 
@@ -64,7 +63,6 @@ void updateProtagonist::on_comboBox_currentIndexChanged(const QString &arg1)
     if (ui->comboBox->currentText() != " ")
     {
         ui->lineEdit->clear();
-        ui->lineEdit_2->clear();
         ui->comboBox_2->clear();
         ui->progressBar->show();
         ui->comboBox->setEnabled(false);
@@ -75,42 +73,8 @@ void updateProtagonist::on_comboBox_currentIndexChanged(const QString &arg1)
 
 void updateProtagonist::on_pushButton_clicked()
 {
-    bool uniqueID = true;
-    bool protagonistIDFlag = false;
-    QString protagonistID = "";
-
-    if (ui->lineEdit_2->text() == "")
-    {
-        protagonistID = ui->comboBox->currentText();
-        protagonistIDFlag = true;
-    }
-    else
-    {
-        for (int i = 0; i < localListProtagonistID.length(); ++i)
-        {
-            if (localListProtagonistID[i] == ui->lineEdit_2->text())
-            {
-                uniqueID = false;
-            }
-        }
-
-        if (uniqueID)
-        {
-            protagonistID = ui->lineEdit_2->text();
-            protagonistIDFlag = true;
-        }
-        else
-        {
-            QMessageBox::information(this,"Ошибка","Необходимо использовать уникальный номер");
-        }
-    }
-
-    if (protagonistIDFlag)
-    {
-        ui->progressBar->show();
-        ui->pushButton->setEnabled(false);
-
-        sendUpdateProtagonist(ui->comboBox->currentText(), protagonistID, ui->lineEdit->text(), ui->comboBox_2->currentText());
-    }
+    ui->progressBar->show();
+    ui->pushButton->setEnabled(false);
+    sendUpdateProtagonist(ui->comboBox->currentText(), ui->lineEdit->text(), ui->comboBox_2->currentText());
 }
 

@@ -32,7 +32,7 @@ private slots:
 
 signals:
     void sendDirectorIDSignalUpd(QString);
-    void sendUpdateDirector(QString, QString, QString, QString, QString);
+    void sendUpdateDirector(QString, QString, QString, QString);
 
 private:
     Ui::updateDirector *ui;

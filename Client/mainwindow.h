@@ -13,6 +13,9 @@
 #include <QBuffer>
 #include <QPrinter>
 #include <QTextDocument>
+#include <QAxObject>
+#include <qt_windows.h>
+#include <QAxBase>
 #include "login.h"
 #include "addmovie.h"
 #include "adddirector.h"
@@ -117,18 +120,18 @@ public slots:
     void preparingAddActor(QString, QString, QString, QPixmap);
     void preparingAddProtagonist(QString, QString);
     void prepareMovieInformationForUpdate(QString);
-    void preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap);
-    void preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString);
-    void preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
-    void preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString);
+    void preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap);
+    void preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString);
+    void preparingUpdMovieWithPosterAndScenario( QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString);
+    void preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString);
     void prepareDirectorInformationForUpdate(QString);
-    void preparingUpdDirector(QString, QString, QString, QString, QString);
+    void preparingUpdDirector(QString, QString, QString, QString);
     void preparingUpdStudio(QString, QString);
     void prepareActorInformationForUpdate(QString);
-    void preparingUpdActorWithPortrait(QString, QString, QString, QString, QString, QPixmap);
-    void preparingUpdActorWithout(QString, QString, QString, QString, QString);
+    void preparingUpdActorWithPortrait(QString, QString, QString, QString, QPixmap);
+    void preparingUpdActorWithout( QString, QString, QString, QString);
     void prepareProtagonistInformationForUpdate(QString);
-    void preparingUpdProtagonist(QString, QString, QString, QString);
+    void preparingUpdProtagonist(QString, QString, QString);
     void customMenuReq(QPoint);
     void deleteMovie();
     void deleteDirector(QString);
@@ -175,6 +178,8 @@ private slots:
     void on_action_17_triggered();
 
     void on_action_19_triggered();
+
+    void on_action_20_triggered();
 
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);
