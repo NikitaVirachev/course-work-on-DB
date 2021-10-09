@@ -9,7 +9,7 @@ login::login(QWidget *parent) :
 
     ui->lineEdit_5->setEchoMode(QLineEdit::Password);
 
-    ui->lineEdit->setText("127.0.0.1");
+    ui->lineEdit->setText("192.168.0.108");
     ui->lineEdit_2->setText("NIKITAPC");
     ui->lineEdit_3->setText("B1");
     ui->lineEdit_4->setText("user1");
