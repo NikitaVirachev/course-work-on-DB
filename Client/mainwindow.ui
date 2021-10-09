@@ -558,8 +558,6 @@
      <string>Дополнительно</string>
     </property>
     <addaction name="action_17"/>
-    <addaction name="action_19"/>
-    <addaction name="action_20"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -663,9 +661,9 @@
     <string>Табличный отчёт</string>
    </property>
   </action>
-  <action name="action_20">
+  <action name="actionExcel">
    <property name="text">
-    <string>Отчёт с диаграммой</string>
+    <string>Excel отчёт</string>
    </property>
   </action>
  </widget>

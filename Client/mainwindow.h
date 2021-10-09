@@ -179,7 +179,7 @@ private slots:
 
     void on_action_19_triggered();
 
-    void on_action_20_triggered();
+    void on_actionExcel_triggered();
 
 signals:
     void sendTakeData(QList <QString>, QList <QString>, QList <QString>, QList <QString>);

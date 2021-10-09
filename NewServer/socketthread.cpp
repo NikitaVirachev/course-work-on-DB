@@ -713,7 +713,7 @@ void socketThread::mySocketReady()
             }
             else
             {
-                qDebug()<<"Клиент " << socketDescriptor << " добавил нового режиссёра с id = " << newDirectorID;
+                qDebug()<<"Клиент " << socketDescriptor << " добавил нового режиссёра";
                 socket->write("{\"type\":\"addNewDirector\",\"params\":\"directorAddedSuccessfully\"}");
                 socket->waitForBytesWritten(500);
             }
@@ -795,7 +795,7 @@ void socketThread::mySocketReady()
                     }
                     else
                     {
-                        qDebug()<<"Клиент " << socketDescriptor << " добавил новую киностудию с названием " << doc.object().value("studioName").toString();
+                        qDebug()<<"Клиент " << socketDescriptor << " добавил новую киностудию";
                         socket->write("{\"type\":\"addNewStudio\",\"params\":\"studioAddedSuccessfully\"}");
                         socket->waitForBytesWritten(500);
                     }
@@ -876,7 +876,7 @@ void socketThread::mySocketReady()
             }
             else
             {
-                qDebug()<<"Клиент " << socketDescriptor << " добавил нового главного героя с id = " << newProtagonistID;
+                qDebug()<<"Клиент " << socketDescriptor << " добавил нового главного героя";
                 socket->write("{\"type\":\"addNewProtagonist\",\"params\":\"protagonistAddedSuccessfully\"}");
                 socket->waitForBytesWritten(500);
             }
@@ -2266,7 +2266,7 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    qDebug()<<"Клиент " << socketDescriptor << " добавил новый фильм с id = " << newMovieID;
+                    qDebug()<<"Клиент " << socketDescriptor << " добавил новый фильм";
                     socket->write("{\"type\":\"addNewMovie\",\"params\":\"movieAddedSuccessfully\"}");
                     socket->waitForBytesWritten(500);
                 }
@@ -2336,7 +2336,7 @@ void socketThread::mySocketReady()
                 }
                 else
                 {
-                    qDebug()<<"Клиент " << socketDescriptor << " добавил нового актёра с id = " << newActorID;
+                    qDebug()<<"Клиент " << socketDescriptor << " добавил нового актёра";
                     socket->write("{\"type\":\"addNewActor\",\"params\":\"actorAddedSuccessfully\"}");
                     socket->waitForBytesWritten(500);
                 }
@@ -2359,7 +2359,7 @@ void socketThread::mySocketReady()
         if (requireSize == Data.size())
         {
             newPoster = Data;
-            qDebug() << newPoster;
+            //qDebug() << newPoster;
 
             if (!posterAndScenario)
             {

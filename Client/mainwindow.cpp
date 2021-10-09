@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent):
     ui->menu_4->setEnabled(false);
     ui->menu_5->setEnabled(false);
     ui->action_3->setEnabled(false);
+    ui->tableView->setEnabled(false);
 
     socket = new QTcpSocket(this);
         connect(socket,SIGNAL(readyRead()), this, SLOT(socketReady()));
@@ -663,6 +664,7 @@ void MainWindow::socketReady()
                 ui->menu_4->setEnabled(true);
                 ui->menu_5->setEnabled(true);
                 ui->action_3->setEnabled(true);
+                ui->tableView->setEnabled(true);
                 ui->action->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Соединение установлено");
             }
@@ -826,6 +828,7 @@ void MainWindow::socketReady()
                 flagContextMenu = false;
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
                 socket->waitForBytesWritten(500);
@@ -956,6 +959,7 @@ void MainWindow::socketReady()
                 addMovieWin->hide();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Фильм успешно добавлен");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -973,6 +977,7 @@ void MainWindow::socketReady()
                 outputData();
                 ui->progressBar->hide();
                 ui->menubar->setEnabled(true);
+                ui->tableView->setEnabled(true);
                 QMessageBox::information(this, "Информация", "Данные обновлены");
             }
             else if ((doc.object().value("type").toString() == "addNewDirector") && (doc.object().value("params").toString() == "directorAddedSuccessfully"))
@@ -1185,6 +1190,7 @@ void MainWindow::socketReady()
                 updateMovieWin->hide();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Фильм успешно обновлён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1266,6 +1272,7 @@ void MainWindow::socketReady()
                 updateMovieWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1305,6 +1312,7 @@ void MainWindow::socketReady()
                 updateDorectorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Режиссёр успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1315,6 +1323,7 @@ void MainWindow::socketReady()
                 updateDorectorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1344,6 +1353,7 @@ void MainWindow::socketReady()
                 updateStudioWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 QMessageBox::information(this, "Информация", "Киностудия успешно изменена");
                 flagContextMenu = false;
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1354,6 +1364,7 @@ void MainWindow::socketReady()
                 updateStudioWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 flagContextMenu = false;
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1426,6 +1437,7 @@ void MainWindow::socketReady()
                 updateActorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Актёр успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1436,6 +1448,7 @@ void MainWindow::socketReady()
                 updateActorWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1481,6 +1494,7 @@ void MainWindow::socketReady()
                 updateProtagonistWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Главный герой успешно изменён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1491,6 +1505,7 @@ void MainWindow::socketReady()
                 updateProtagonistWin->close();
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1500,6 +1515,7 @@ void MainWindow::socketReady()
             {
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Информация", "Фильм успешно удалён");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1509,6 +1525,7 @@ void MainWindow::socketReady()
             {
                 ui->progressBar->show();
                 ui->menubar->setEnabled(false);
+                ui->tableView->setEnabled(false);
                 flagContextMenu = false;
                 QMessageBox::information(this, "Ошибка", "Данные устарели. Повторите попытку");
                 socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
@@ -1674,28 +1691,45 @@ void MainWindow::socketReady()
             }
             else if ((doc.object().value("type").toString() == "report") && (doc.object().value("params").toString() == "itogExcel"))
             {
-                QString path = QFileDialog::getSaveFileName(NULL, "Сохранить отчёт", "Отчёт", "xlsx(*.xlsx)");
+                //QString path = QFileDialog::getSaveFileName(NULL, "Сохранить отчёт", "Отчёт", "xlsx(*.xlsx)");
                 //QFile::copy(":report/Excel/excelReport.xlsx", path);
+
 
                 // получаем указатель на Excel
                 QAxObject *mExcel = new QAxObject( "Excel.Application",this);
+                //видимость документа
+                mExcel->dynamicCall("SetVisible(bool)", false);
                 // на книги
                 QAxObject *workbooks = mExcel->querySubObject( "Workbooks" );
                 // на директорию, откуда грузить книгу
                 QAxObject *workbook = workbooks->querySubObject( "Open(const QString&)", "D:\\Report.xlsx" );
                 // на листы (снизу вкладки)
-                QAxObject *mSheets = workbook->querySubObject( "Sheets" );
+                QAxObject *mSheets = workbook->querySubObject( "Worksheets" );
                 // указываем, какой лист выбрать. У меня он называется topic.
-                QAxObject *StatSheet = mSheets->querySubObject( "Item(const QVariant&)", QVariant("topic") );
+                //QAxObject *StatSheet = mSheets->querySubObject( "Item(const QVariant&)", QVariant("topic") );
 
-                //StatSheet->setProperty("Name", "Отчёт");
+                int count = mSheets->dynamicCall("Count()").toInt();
+                qDebug() << "Количество листов: " << count;
 
-                // получение указателя на ячейку [row][col] ((!)нумерация с единицы)
-                QAxObject* cell = StatSheet->querySubObject("Cells(QVariant,QVariant)", 1, 1);
-                // вставка значения переменной data (любой тип, приводимый к QVariant) в полученную ячейку
-                cell->setProperty("Value", QVariant("Hello world!"));
-                // освобождение памяти
-                //delete cell;
+                QAxObject *sheet = mSheets->querySubObject( "Item( int )", 1 ); //где 1 - это открываемая страница
+
+                QAxObject *rows = sheet->querySubObject( "Rows" ); //строки
+                int rowCount = rows->dynamicCall("Count()").toInt();
+
+                QAxObject* columns = sheet->querySubObject( "Columns" ); //столбцы
+                int columnCount = columns->dynamicCall( "Count()" ).toInt();
+
+                qDebug() << "Количество строк" << rowCount;
+                qDebug() << "Количество столбцов" << columnCount;
+
+                QAxObject* cell = sheet->querySubObject( "Cells( int, int)", 1, 5 );
+                cell->dynamicCall( "SetValue(const QVariant&)", "Понедельник" );
+
+                mExcel->setProperty("DisplayAlerts", 0);
+                workbook->dynamicCall("Save");
+
+                workbook->dynamicCall("Close()");
+                mExcel->dynamicCall("Quit()");
             }
             else
             {
@@ -1766,6 +1800,7 @@ void MainWindow::socketReady()
                 }
                 ui->progressBar->hide();
                 ui->menubar->setEnabled(true);
+                ui->tableView->setEnabled(true);
                 scenarioArrives = false;
             }
             else
@@ -1883,6 +1918,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     ui->textEdit->clear();
     ui->progressBar->show();
     ui->menubar->setEnabled(false);
+    ui->tableView->setEnabled(false);
 
     QString title;
     QString releaseDate;
@@ -1947,6 +1983,7 @@ void MainWindow::on_action_3_triggered()
 {
     ui->progressBar->show();
     ui->menubar->setEnabled(false);
+    ui->tableView->setEnabled(false);
     flagContextMenu = false;
     socket->write("{\"type\":\"updateData\",\"params\":\"findSize\"}");
     socket->waitForBytesWritten(500);
@@ -2064,7 +2101,7 @@ void MainWindow::on_action_19_triggered()
     socket->waitForBytesWritten(500);
 }
 
-void MainWindow::on_action_20_triggered()
+void MainWindow::on_actionExcel_triggered()
 {
     socket->write("{\"type\":\"report\",\"params\":\"requestExcelReport\"}");
     socket->waitForBytesWritten(500);
