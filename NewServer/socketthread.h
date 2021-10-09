@@ -51,9 +51,13 @@ public:
     QString newMovieID;
     QString oldMovieID;
     QString newTitle;
+    QString oldTitle;
     QString newReleaseDate;
+    QString oldReleaseDate;
     QString newBoxOffice;
+    QString oldBoxOffice;
     QString newBudget;
+    QString oldBudget;
     QString newProtagonistID;
     QString newDirectorID;
     QString newStudioName;
@@ -64,8 +68,11 @@ public:
 
     QString oldDirectorID;
     QString newFirstName;
+    QString oldFirstName;
     QString newLastName;
+    QString oldLastName;
     QString newDateOfBirth;
+    QString oldDateOfBirth;
 
     QString oldStudioName;
 
@@ -75,9 +82,12 @@ public:
     bool checkMovieID(QString movieID);
     bool checkInformationOnFilm(QString movieID, QString title, QString releaseDate, QString boxOffice, QString budget);
     bool checkDirectorID(QString directorID);
+    bool checkInformationDirector(QString directorID, QString firstName, QString lastName, QString dateOfBirtday);
     bool checkStudioName(QString studioName);
     bool checkActorID(QString actorID);
+    bool checkInformationActor(QString actorID, QString firstName, QString lastName, QString dateOfBirtday);
     bool checkProtagonistID(QString protagonistID);
+    bool checkInformationProtagonist(QString protagonistID, QString oldName);
 
 public slots:
     void mySocketReady();

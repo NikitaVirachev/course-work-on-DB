@@ -270,7 +270,7 @@ void MainWindow::prepareMovieInformationForUpdate(QString movieID)
 }
 
 void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
-                                             QString protagonistID, QString studioName, QPixmap poster)
+                                             QString protagonistID, QString studioName, QPixmap poster, QString oldTitle, QString oldReleaseDate, QString oldBoxOffice, QString oldBudget)
 {
     if (poster.isNull())
     {
@@ -294,6 +294,10 @@ void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString title, 
                       "\",\"directorID\":\"" + directorID.toUtf8() +
                       "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
                       "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\",\"oldTitle\":\"" + oldTitle.toUtf8() +
+                      "\",\"oldReleaseDate\":\"" + oldReleaseDate.toUtf8() +
+                      "\",\"oldBoxOffice\":\"" + oldBoxOffice.toUtf8() +
+                      "\",\"oldBudget\":\"" + oldBudget.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -304,7 +308,7 @@ void MainWindow::preparingUpdMovieWithPoster(QString oldMovieID, QString title, 
 }
 
 void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
-                                               QString protagonistID, QString studioName, QString scenario)
+                                               QString protagonistID, QString studioName, QString scenario, QString oldTitle, QString oldReleaseDate, QString oldBoxOffice, QString oldBudget)
 {
     newScenario = scenario.toUtf8();
 
@@ -319,6 +323,10 @@ void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString title
                       "\",\"directorID\":\"" + directorID.toUtf8() +
                       "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
                       "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\",\"oldTitle\":\"" + oldTitle.toUtf8() +
+                      "\",\"oldReleaseDate\":\"" + oldReleaseDate.toUtf8() +
+                      "\",\"oldBoxOffice\":\"" + oldBoxOffice.toUtf8() +
+                      "\",\"oldBudget\":\"" + oldBudget.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -330,7 +338,7 @@ void MainWindow::preparingUpdMovieWithScenario(QString oldMovieID, QString title
 
 void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QString title, QString releaseDate,
                                                         QString boxOffice, QString budget, QString directorID, QString protagonistID,
-                                                        QString studioName, QPixmap poster, QString scenario)
+                                                        QString studioName, QPixmap poster, QString scenario, QString oldTitle, QString oldReleaseDate, QString oldBoxOffice, QString oldBudget)
 {
     newScenario = scenario.toUtf8();
 
@@ -356,6 +364,10 @@ void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QStr
                       "\",\"directorID\":\"" + directorID.toUtf8() +
                       "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
                       "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\",\"oldTitle\":\"" + oldTitle.toUtf8() +
+                      "\",\"oldReleaseDate\":\"" + oldReleaseDate.toUtf8() +
+                      "\",\"oldBoxOffice\":\"" + oldBoxOffice.toUtf8() +
+                      "\",\"oldBudget\":\"" + oldBudget.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -366,7 +378,7 @@ void MainWindow::preparingUpdMovieWithPosterAndScenario(QString oldMovieID, QStr
 }
 
 void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString title, QString releaseDate, QString boxOffice, QString budget, QString directorID,
-                                          QString protagonistID, QString studioName)
+                                          QString protagonistID, QString studioName, QString oldTitle, QString oldReleaseDate, QString oldBoxOffice, QString oldBudget)
 {
     if (socket->isOpen())
     {
@@ -379,6 +391,10 @@ void MainWindow::preparingUpdMovieWithout(QString oldMovieID, QString title, QSt
                       "\",\"directorID\":\"" + directorID.toUtf8() +
                       "\",\"protagonistID\":\"" + protagonistID.toUtf8() +
                       "\",\"studioName\":\"" + studioName.toUtf8() +
+                      "\",\"oldTitle\":\"" + oldTitle.toUtf8() +
+                      "\",\"oldReleaseDate\":\"" + oldReleaseDate.toUtf8() +
+                      "\",\"oldBoxOffice\":\"" + oldBoxOffice.toUtf8() +
+                      "\",\"oldBudget\":\"" + oldBudget.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -401,7 +417,7 @@ void MainWindow::prepareDirectorInformationForUpdate(QString directorID)
     }
 }
 
-void MainWindow::preparingUpdDirector(QString oldDirectorID, QString firstName, QString lastName, QString dateOfBirth)
+void MainWindow::preparingUpdDirector(QString oldDirectorID, QString firstName, QString lastName, QString dateOfBirth, QString oldFirstName, QString oldLastName, QString oldDateOfBirth)
 {
     if (socket->isOpen())
     {
@@ -410,6 +426,9 @@ void MainWindow::preparingUpdDirector(QString oldDirectorID, QString firstName, 
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\",\"oldFirstName\":\"" + oldFirstName.toUtf8() +
+                      "\",\"oldLastName\":\"" + oldLastName.toUtf8() +
+                      "\",\"oldDateOfBirth\":\"" + oldDateOfBirth.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -448,7 +467,7 @@ void MainWindow::prepareActorInformationForUpdate(QString actorID)
     }
 }
 
-void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait)
+void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth, QPixmap actorPortrait, QString oldFirstName, QString oldLastName, QString oldDateOfBirth)
 {
     if (actorPortrait.isNull())
     {
@@ -468,6 +487,9 @@ void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString first
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\",\"oldFirstName\":\"" + oldFirstName.toUtf8() +
+                      "\",\"oldLastName\":\"" + oldLastName.toUtf8() +
+                      "\",\"oldDateOfBirth\":\"" + oldDateOfBirth.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -477,7 +499,7 @@ void MainWindow::preparingUpdActorWithPortrait(QString oldActorID, QString first
     }
 }
 
-void MainWindow::preparingUpdActorWithout(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth)
+void MainWindow::preparingUpdActorWithout(QString oldActorID, QString firstName, QString lastName, QString dateOfBirth, QString oldFirstName, QString oldLastName, QString oldDateOfBirth)
 {
     if (socket->isOpen())
     {
@@ -486,6 +508,9 @@ void MainWindow::preparingUpdActorWithout(QString oldActorID, QString firstName,
                       "\",\"firstName\":\"" + firstName.toUtf8() +
                       "\",\"lastName\":\"" + lastName.toUtf8() +
                       "\",\"dateOfBirth\":\"" + dateOfBirth.toUtf8() +
+                      "\",\"oldFirstName\":\"" + oldFirstName.toUtf8() +
+                      "\",\"oldLastName\":\"" + oldLastName.toUtf8() +
+                      "\",\"oldDateOfBirth\":\"" + oldDateOfBirth.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -508,7 +533,7 @@ void MainWindow::prepareProtagonistInformationForUpdate(QString protagonistID)
     }
 }
 
-void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString name, QString actorID)
+void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString name, QString actorID, QString oldName)
 {
     if (socket->isOpen())
     {
@@ -516,6 +541,7 @@ void MainWindow::preparingUpdProtagonist(QString oldAProtagonistID, QString name
                       ",\"oldAProtagonistID\":\"" + oldAProtagonistID.toUtf8() +
                       "\",\"name\":\"" + name.toUtf8() +
                       "\",\"actorID\":\"" + actorID.toUtf8() +
+                      "\",\"oldName\":\"" + oldName.toUtf8() +
                       "\"}");
         socket->waitForBytesWritten(500);
     }
@@ -1176,14 +1202,14 @@ void MainWindow::socketReady()
                 emit sendInformationMovieUpd(updTitle, updReleaseDate, updBoxOffice, updBudget, updMovieStudioName, updMovieDirectorID,
                                              updMovieProtagonistID, updPoster, updScenario, listDirectorID, listProtagonistID, listStudioName);
 
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)),
-                        this, SLOT(preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)),
-                        this, SLOT(preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString)));
-                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithPoster(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithScenario(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithPosterAndScenario(QString, QString, QString, QString, QString, QString, QString, QString, QPixmap, QString, QString, QString, QString, QString)));
+                connect(updateMovieWin,SIGNAL(sendUpdateMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdMovieWithout(QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateMovie") && (doc.object().value("params").toString() == "movieSuccessfullyUpdated"))
             {
@@ -1304,8 +1330,8 @@ void MainWindow::socketReady()
                 emit sendInformationDirectorUpd(doc.object().value("firstName").toString(), doc.object().value("lastName").toString(),
                                                 doc.object().value("dateOfBirth").toString());
 
-                connect(updateDorectorWin,SIGNAL(sendUpdateDirector(QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdDirector(QString, QString, QString, QString)));
+                connect(updateDorectorWin,SIGNAL(sendUpdateDirector(QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdDirector(QString, QString, QString, QString, QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateDirector") && (doc.object().value("params").toString() == "directorSuccessfullyUpdated"))
             {
@@ -1486,8 +1512,8 @@ void MainWindow::socketReady()
                         updateProtagonistWin, SLOT(acceptInformationProtagonistUpd(QString, QString, QList <QString>)));
                 emit sendInformationProtagonistUpd(doc.object().value("name").toString(), doc.object().value("actorID").toString(), listActorID);
 
-                connect(updateProtagonistWin,SIGNAL(sendUpdateProtagonist(QString, QString, QString)),
-                        this, SLOT(preparingUpdProtagonist(QString, QString, QString)));
+                connect(updateProtagonistWin,SIGNAL(sendUpdateProtagonist(QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdProtagonist(QString, QString, QString, QString)));
             }
             else if ((doc.object().value("type").toString() == "updateProtagonist") && (doc.object().value("params").toString() == "protagonistSuccessfullyUpdated"))
             {
@@ -1863,10 +1889,10 @@ void MainWindow::socketReady()
 
                 updPortraitArrives = false;
 
-                connect(updateActorWin,SIGNAL(sendUpdateActorWithPortrait(QString, QString, QString, QString, QPixmap)),
-                        this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QPixmap)));
-                connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString)),
-                        this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString)));
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithPortrait(QString, QString, QString, QString, QPixmap, QString, QString, QString)),
+                        this, SLOT(preparingUpdActorWithPortrait(QString, QString, QString, QString, QPixmap, QString, QString, QString)));
+                connect(updateActorWin,SIGNAL(sendUpdateActorWithout(QString, QString, QString, QString, QString, QString, QString)),
+                        this, SLOT(preparingUpdActorWithout(QString, QString, QString, QString, QString, QString, QString)));
             }
             else
             {

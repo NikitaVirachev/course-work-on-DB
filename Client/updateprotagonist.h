@@ -18,6 +18,7 @@ public:
     ~updateProtagonist();
 
     QList<QString> localListProtagonistID;
+    QString oldName;
 
 public slots:
     void acceptProtagonistID(QList <QString>);
@@ -25,7 +26,7 @@ public slots:
 
 signals:
     void sendProtagonistIDSignalUpd(QString);
-    void sendUpdateProtagonist(QString, QString, QString);
+    void sendUpdateProtagonist(QString, QString, QString, QString);
 
 private slots:
     void on_comboBox_currentIndexChanged(const QString &arg1);

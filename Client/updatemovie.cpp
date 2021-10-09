@@ -58,6 +58,10 @@ void updateMovie::acceptInformationMovieUpd(QString title, QString releaseDate, 
     double doubleBoxOffice = boxOffice.toDouble();
     int intBudget = doubleBudget;
     int intBoxOffice = doubleBoxOffice;
+    oldTitle = title;
+    oldDate = releaseDate;
+    oldBoxOffice = boxOffice;
+    oldBudget = budget;
 
     for (int i = 0; i < listDirectorID.length(); ++i)
     {
@@ -205,27 +209,27 @@ void updateMovie::on_pushButton_3_clicked()
     {
         sendUpdateMovieWithPosterAndScenario(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                              ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster,
-                                             ui->textEdit->toPlainText());
+                                             ui->textEdit->toPlainText(), oldTitle, oldDate, oldBoxOffice, oldBudget);
         posterFlag = false;
         scenarioFlag = false;
     }
     else if (posterFlag)
     {
         sendUpdateMovieWithPoster(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                                  ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster);
+                                  ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), newPoster, oldTitle, oldDate, oldBudget, oldBoxOffice);
         posterFlag = false;
     }
     else if (scenarioFlag)
     {
         sendUpdateMovieWithScenario(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
                                     ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(),
-                                    ui->textEdit->toPlainText());
+                                    ui->textEdit->toPlainText(), oldTitle, oldDate, oldBudget, oldBoxOffice);
         scenarioFlag = false;
     }
     else
     {
         sendUpdateMovieWithout(ui->comboBox->currentText(), ui->lineEdit->text(), date, ui->lineEdit_2->text(), ui->lineEdit_3->text(),
-                               ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText());
+                               ui->comboBox_2->currentText(), ui->comboBox_3->currentText(), ui->comboBox_4->currentText(), oldTitle, oldDate, oldBudget, oldBoxOffice);
     }
 }
 

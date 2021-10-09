@@ -41,6 +41,10 @@ void updateActor::acceptActorID(QList<QString> listActorID)
 
 void updateActor::acceptInformationActorUpd(QString firstName, QString lastName, QString dateOfBirth, QByteArray actorPortrait)
 {
+    oldFirstName = firstName;
+    oldLastName = lastName;
+    oldDateOfBirth = dateOfBirth;
+
     ui->lineEdit_2->setText(firstName);
     ui->lineEdit_3->setText(lastName);
 
@@ -138,12 +142,12 @@ void updateActor::on_pushButton_2_clicked()
 
     if (portraitFlag)
     {
-        emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, newActorPortrait);
+        emit sendUpdateActorWithPortrait(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, newActorPortrait, oldFirstName, oldLastName, oldDateOfBirth);
         portraitFlag = false;
     }
     else
     {
-        emit sendUpdateActorWithout(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
+        emit sendUpdateActorWithout(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, oldFirstName, oldLastName, oldDateOfBirth);
     }
 }
 

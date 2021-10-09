@@ -34,6 +34,7 @@ void updateProtagonist::acceptProtagonistID(QList<QString> listProtagonistID)
 
 void updateProtagonist::acceptInformationProtagonistUpd(QString name, QString actorID, QList<QString> listActorID)
 {
+    oldName = name;
     ui->comboBox_2->clear();
 
     for (int i = 0; i < listActorID.length(); ++i)
@@ -75,6 +76,6 @@ void updateProtagonist::on_pushButton_clicked()
 {
     ui->progressBar->show();
     ui->pushButton->setEnabled(false);
-    sendUpdateProtagonist(ui->comboBox->currentText(), ui->lineEdit->text(), ui->comboBox_2->currentText());
+    sendUpdateProtagonist(ui->comboBox->currentText(), ui->lineEdit->text(), ui->comboBox_2->currentText(), oldName);
 }
 

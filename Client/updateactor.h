@@ -22,6 +22,10 @@ public:
     QPixmap newActorPortrait;
     QPixmap outPortrait;
 
+    QString oldFirstName;
+    QString oldLastName;
+    QString oldDateOfBirth;
+
     bool portraitFlag = false;
 
     QList<QString> localListActorID;
@@ -35,8 +39,8 @@ public slots:
 
 signals:
     void sendActorIDSignalUpd(QString);
-    void sendUpdateActorWithPortrait(QString, QString, QString, QString, QPixmap);
-    void sendUpdateActorWithout(QString, QString, QString, QString);
+    void sendUpdateActorWithPortrait(QString, QString, QString, QString, QPixmap, QString, QString, QString);
+    void sendUpdateActorWithout(QString, QString, QString, QString, QString, QString, QString);
     void sendImageForChange(QPixmap);
 
 private slots:

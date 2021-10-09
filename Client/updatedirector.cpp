@@ -38,6 +38,9 @@ void updateDirector::acceptDirectorID(QList<QString> listDirectorID)
 
 void updateDirector::acceptInformationDirectorUpd(QString firstName, QString lastName, QString dateOfBirth)
 {
+    oldFirstName = firstName;
+    oldLastName = lastName;
+    oldDateOfBirth = dateOfBirth;
     ui->lineEdit_2->setText(firstName);
     ui->lineEdit_3->setText(lastName);
     if (dateOfBirth == "")
@@ -84,7 +87,7 @@ void updateDirector::on_pushButton_clicked()
     ui->progressBar->show();
     ui->pushButton->setEnabled(false);
 
-    sendUpdateDirector(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date);
+    sendUpdateDirector(ui->comboBox->currentText(), ui->lineEdit_2->text(), ui->lineEdit_3->text(), date, oldFirstName, oldLastName, oldDateOfBirth);
 }
 
 
